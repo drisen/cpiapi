@@ -20,13 +20,13 @@ import time
 import urllib3
 
 # direct threading is Panda3d incompatible alternative for threading
-if 'direct.stdpy.threading' in sys.modules:
-    import direct.stdpy.threading as threading
-else:
-    import threading
+# if 'direct.stdpy.threading' in sys.modules:
+#     import direct.stdpy.threading as threading
+# else:
+import threading
 
 from credentials import credentials
-from cpitime import logErr
+from .cpitime import logErr
 
 """ TODO
 Unless the __init__ supplies a semaphore, attempts to create another Cpi with same
