@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cpiapi
-Version: 2.0
+Version: 2.0.1
 Summary: "Cisco Prime Infrastructure API utilities"
 Home-page: https://github.com/drisen/cpiapi
 Author: "Dennis Risen"

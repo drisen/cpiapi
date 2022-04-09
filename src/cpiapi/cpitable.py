@@ -24,13 +24,13 @@ from typing import Union
 import requests
 
 # direct threading is Panda3d incompatible alternative for threading
-if 'direct.stdpy.threading' in sys.modules:
-    import direct.stdpy.threading as threading
-else:
-    import threading
+# if 'direct.stdpy.threading' in sys.modules:
+#     import direct.stdpy.threading as threading
+# else:
+import threading
 
-from cpitime import anyToSecs, logErr, millisToSecs, secsToMillis, strfTime
-from cpiapi import Cpi
+from .cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
+from .cpiapi import Cpi
 from loom import Queue
 
 MINUTE = 60.0                   # seconds in a minute
@@ -726,7 +726,7 @@ class SubTable(Named):
         if len(self.key_defs) > 0:      # any PRIMARY KEYS?
             s += f'CONSTRAINT {name}_pk PRIMARY KEY ({",".join([k[1] for k in self.key_defs])}),\n'
         s = s[:-2] + ');\n'
-        sub_tables = getattr(self, 'sub_tables', None)
+        sub_tables = getattr(self, 'sub_tables', [])
         for table_name in sub_tables:   # add SQL for each subtable
             st = self.subTables[table_name]
             if len(st.select) > len(st.keys):  # SubTable has data to output?

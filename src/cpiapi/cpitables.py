@@ -8,8 +8,8 @@ relational table definition for each CPI API version's actual response
 production performance metrics collection.
 """
 
-from cpitable import Table, report_type_uses
-from cpitable import neighborGenerator, real_timeCS
+from .cpitable import Table, report_type_uses
+from .cpitable import neighborGenerator, real_timeCS
 
 
 def add_table(tables: dict, table: Table):

@@ -4,29 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/cpiapi.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/cpiapi-1.6.2-py3-none-any.whl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/cpiapi-1.6.2.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/cpiapi-1.6.6-py3-none-any.whl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/cpiapi-1.6.6.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/cpiapi-1.6.7-py3-none-any.whl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dist/cpiapi-1.6.7.tar.gz" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/cpiapi/cpitime.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/setup.cfg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpiapi/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpiapi/cpiTables.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpitables.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpiapi/cpiapi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpiapi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/cpiapi/cpitable.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpitable.py" afterDir="false" />
+    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="changed internal import references to .xxxxx">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +13,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="27QxQeQHlNKyJY85LLONtydJq7C" />
@@ -45,10 +30,10 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/cpiapi/cpitables.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../awslib" />
     <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Python" />
   </component>
-  <component name="RunManager" selected="Python.test cpitables">
+  <component name="RunManager" selected="Python.test cpiapi APD">
     <configuration name="build" type="PythonConfigurationType" factoryName="Python">
       <module name="cpiapi" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -171,6 +156,21 @@
       <option name="presentableId" value="Default" />
       <updated>1649266096641</updated>
     </task>
+    <task id="LOCAL-00001" summary="moved build requirements from requirements.txt to minimum versions in pyproject.toml&#10;added run steps to --upgrade pip and build&#10;added printIf and verbose_1">
+      <created>1649509716650</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1649509716650</updated>
+    </task>
+    <task id="LOCAL-00002" summary="changed internal import references to .xxxxx">
+      <created>1649525952273</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1649525952273</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -183,5 +183,11 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="moved build requirements from requirements.txt to minimum versions in pyproject.toml&#10;added run steps to --upgrade pip and build&#10;added printIf and verbose_1" />
+    <MESSAGE value="changed internal import references to .xxxxx" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed internal import references to .xxxxx" />
   </component>
 </project>
