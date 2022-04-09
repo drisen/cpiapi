@@ -1,3 +1,20 @@
+Metadata-Version: 2.1
+Name: cpiapi
+Version: 2.0
+Summary: "Cisco Prime Infrastructure API utilities"
+Home-page: https://github.com/drisen/cpiapi
+Author: "Dennis Risen"
+Author-email: "dar5@case.edu"
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/drisen/cpiapi/issues
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Licence :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 # cpiapi package
 
 Package to GET data-sets from the Cisco Prime Infastructure GET APIs. Includes:
@@ -43,3 +60,5 @@ enterprise's home time zone
       timezone
     - **strpSecs**`(s:str) -> float ` 
     Parse ISO time text to UTC epochSeconds:float.
+
+

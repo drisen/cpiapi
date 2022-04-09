@@ -19,6 +19,7 @@ import os
 import re
 import sys
 import time
+from typing import Union
 
 import requests
 
@@ -28,8 +29,9 @@ if 'direct.stdpy.threading' in sys.modules:
 else:
     import threading
 
-from mylib import anyToSecs, logErr, millisToSecs, printIf, Queue, secsToMillis, strfTime, verbose_1
-from .cpiapi import Cpi
+from cpitime import anyToSecs, logErr, millisToSecs, secsToMillis, strfTime
+from cpiapi import Cpi
+from loom import Queue
 
 MINUTE = 60.0                   # seconds in a minute
 HOUR = 60*MINUTE                # seconds in an hour
@@ -232,7 +234,7 @@ a_enum('PhoneSupport7920Enum', ['DISABLED', 'CLIENTCAC', 'APCAC',
                                 'CLIENTANDAPCAC'])  #
 a_enum('PmipMobilityTypeEnum', ['NONE', 'PMIP'])  #
 a_enum('PoeStatusEnum', ['NORMAL', 'LOW', 'FIFTEENDOTFOUR', 'SIXTEENDOTEIGHT',
-                          'EXTERNAL', 'TWENTYFIVEDOTFIVE', 'MIXEDMODE'])  #
+                         'EXTERNAL', 'TWENTYFIVEDOTFIVE', 'MIXEDMODE'])  #
 a_enum('PoeStatusEnumInt', [])  # interpret values per PoeStatusEnum
 a_enum('PolicyTypeStatusEnum',
        ['IDLE', 'RUNNING', 'NOMETHOD', 'AUTHENTICATIONSUCCEEDED',
@@ -334,7 +336,7 @@ class Pager(Named):
         self.idField = None             # No primary key, yet
         self.filterCnt: int = 0  # count of calls to filterCnt since last message printed
         self.polledTime: float = 0.0    # time.time() that this poll started
-        self.timeField: str = None      # name of the timeField, if any
+        self.timeField: Union[str, None] = None      # name of the timeField, if any
         self.timeField_type = ''        # in {'bad', 'int', 'long', 'string', ...}
         # dynamic state
         self.lastId = 0                 # maximum seen value of the primary key
@@ -585,18 +587,18 @@ class SubTable(Named):
         """
         # print(f"SubTable.__init__(fields={fields}, kwargs={kwargs})")
         super().__init__(*fields, **kwargs)
-        self.file: _io.TextIOWrapper = None  # output file
+        self.file: Union[_io.TextIOWrapper, None] = None  # output file
         self.file_name: str = ''        # full pathname of output file
         self.select: list = list()      # build SELECT list from an empty list
         self.check_fields: bool = False  # True to check field types
         self.check_enums: bool = False  # True to check enum values
-        self.field_counts = defaultdict(lambda: defaultdict(int))  # Dict = Dict(2)  # {field_name:{type(value):count, ...}, ...}
-        self.field_values = defaultdict(lambda: defaultdict(int))  # Dict = Dict(2)  # {field_name:{value:count, ...}, ...}
+        self.field_counts = defaultdict(lambda: defaultdict(int))  # {field_name:{type(value):count, ...}, ...}
+        self.field_values = defaultdict(lambda: defaultdict(int))  # {field_name:{value:count, ...}, ...}
         self.fieldTypes: dict = dict()  # build fieldTypes from an empty dict
         self.key_defs: list = keys
-        self.parent: Table = None       # Initially no parent
+        self.parent: Union[Table, None] = None       # Initially no parent
         self.subTables: dict = dict()   # {pathName:subTable, ...}
-        self.writer: csv.DictWriter = None  # (dictWriter):	returned from csv.dictWriter
+        self.writer: Union[csv.DictWriter, None] = None  # (dictWriter): returned from csv.dictWriter
 
         for afield in keys:             # Add each key ...
             self.field(*afield)         # ... to fieldTypes and SELECT
@@ -756,7 +758,7 @@ class Table(SubTable, Pager):
         # self.select: list				# Fields to select. [field_name, ...]
         # self.fieldTypes: dict	# {field_name:field_type, ...} of each field, field_type in allTypes
         # self.file_name: str = ''		# {epoch_msec}_{table_name}{version}
-        self.indexTablePath: str = None  # pathname to index table for main table
+        self.indexTablePath: Union[str, None] = None  # pathname to index table for main table
         self.checked_time: float = 0.0  # time.time() that enums and fields last checked
         self.prev_polledTime: float = 0.0  # time.time() that previous poll started
         self.queryOptions: dict = dict()  # {attr_name:value, ...] default is: {}
@@ -1571,7 +1573,7 @@ def find_table(table_name: str, dicts: list, version: int = None, best_version=F
                 elif version == ver and result is None:  # first exact version
                     return tbl
                 elif best_version:
-                    if version <= ver < result_version: # better version?
+                    if version <= ver < result_version:  # better version?
                         result_version = ver  # yes
                         result = tbl    # this tbl is a better match
                 else:                   # no match

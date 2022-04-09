@@ -13,12 +13,10 @@ Cache class manages a json file cache of recently read CPI API responses
 from collections.abc import Generator
 from typing import Union
 import json
+import requests
 import os
-import platform
 import sys
 import time
-
-import requests
 import urllib3
 
 # direct threading is Panda3d incompatible alternative for threading
@@ -27,7 +25,8 @@ if 'direct.stdpy.threading' in sys.modules:
 else:
     import threading
 
-from mylib import credentials, logErr
+from credentials import credentials
+from cpitime import logErr
 
 """ TODO
 Unless the __init__ supplies a semaphore, attempts to create another Cpi with same
@@ -396,9 +395,9 @@ class Cpi:
 
 class Cache:
     """
-    A Cache of tables recently read from CPI.
+    A cache of API contents recently read from CPI by the current user.
     """
-    cache_dir = 'cache'
+    cache_dir = os.path.join(os.path.expanduser('~'), 'cache')
     cache_semaphore = threading.Semaphore()
 
     @classmethod
@@ -487,35 +486,26 @@ class Cache:
 
 if __name__ == '__main__':  # test with optional command argument: tableURL
     from sys import argv, exit
-
     import pprint
-
-    # import certifi
-    # import urllib3
-    # pool = urllib3.PoolManager(ceft_reqs='CERT_REQUIRED', ca_certs=certify.where())
+    print("must be connected to case.edu network to run this test")
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     server = 'ncs01.case.edu'
     if len(argv) < 1:
-        print('arguments are: [relative URL of table to read]')
+        print('arguments are: [relative URL of table to read]. E.g. v4/data/AccessPointDetails')
         exit(1)
     try:
-        cred = credentials(server)
+        cred = credentials.credentials(server)
     except KeyError:
         print(f"No credentials found for server {server}")
         exit(1)
     myCpi = Cpi(cred[0], cred[1])
-    if False:                           # test Cache
-        reader = Cache.Reader(myCpi, 'v4/data/AccessPointDetails', 3)
-        for rec in reader:
-            pass
-        print('done')
-        exit()
 
     if len(argv) > 1:
         tableURL = argv[1]              # relative URL of table
     else:
         # tableURL = 'v1/op/cliTemplateConfiguration/deviceTypes'
         tableURL = 'v4/op/maps/8197498/image'
+    print(f"Testing reading the {tableURL} API")
     reader = Cpi.Reader(myCpi, tableURL, paged=True, verbose=1)
     pp = pprint.PrettyPrinter(indent=2, width=160)
     record_num = 0
@@ -540,3 +530,19 @@ if __name__ == '__main__':  # test with optional command argument: tableURL
         print(f"retrieval stopped after {record_num} records")
     print(f"returned {record_num} rows with up to {max_len} attr:val pairs")
     print(f"reader.recCnt={reader.recCnt}")
+    if len(argv) > 1:
+        print(f"testing reading {tableURL} while updating the cache")
+        start_time = time.time()
+        reader = Cache.Reader(myCpi, tableURL, 0)
+        record_num = 0
+        for rec in reader:
+            record_num += 1
+        print(f"read {record_num} records in {time.time()-start_time:0.2f} seconds")
+
+        print(f"testing reading {tableURL} from existing cache entry")
+        start_time = time.time()
+        reader = Cache.Reader(myCpi, tableURL, 1)
+        record_num = 0
+        for rec in reader:
+            record_num += 1
+        print(f"read {record_num} records in {time.time()-start_time:0.2f} seconds")

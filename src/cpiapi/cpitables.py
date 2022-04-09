@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-# cpiTables.py is Copyright 2019 by Dennis Risen, Case Western Reserve University
+# cpitables.py is Copyright 2019 by Dennis Risen, Case Western Reserve University
 #
 """
 Contains the archive, production, real-time, and test catalogs of the
@@ -8,8 +8,8 @@ relational table definition for each CPI API version's actual response
 production performance metrics collection.
 """
 
-from .cpitable import Table, report_type_uses
-from .cpitable import neighborGenerator, real_timeCS
+from cpitable import Table, report_type_uses
+from cpitable import neighborGenerator, real_timeCS
 
 
 def add_table(tables: dict, table: Table):
