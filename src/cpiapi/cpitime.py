@@ -45,7 +45,8 @@ if platform.system() == 'Linux': 		# Running on Linux platform?
         print(f"{start}{strfTime(time.time())} ERROR", *s, end=end, **kwargs)
         message = ' '.join(str(x) for x in s)  # join the parameters, like print
         try:
-            subprocess.run([r'/usr/bin/mailx', '-s', logErr.logSubject]+logErr.logToAddr,
+            params = [r'/usr/bin/mailx', '-s', logErr.logSubject]+logErr.logToAddr
+            subprocess.run(params,
                 check=True, input=message.encode())
         except subprocess.CalledProcessError as e:
             print(f"mailx failed: {e}")
@@ -58,7 +59,14 @@ if platform.system() == 'Linux': 		# Running on Linux platform?
 else:									# No, just print
 
     def logErr(*s, start: str = '\n', end: str = '', **kwargs):
+        params = [r'/usr/bin/mailx', '-s', logErr.logSubject] + logErr.logToAddr
+        print(f"unix would call subprocess({params}, check=True, input=message=<see below>)")
         print(f"{start}{strfTime(time.time())} ERROR", *s, end=end, **kwargs)
+    # Default Subject of logError() email messages
+    logErr.logSubject = os.path.basename(sys.argv[1]
+        if re.search('python', sys.argv[0]) else sys.argv[0])
+    # Default list of addressees to receive logError() messages
+    logErr.logToAddr = ["default"]
 
 
 def millisToSecs(millis: int, time_delta: float = 0) -> float:
@@ -75,7 +83,7 @@ def strfTime(t: object, fmt: str = '%Y-%m-%dT%H:%M:%S', millis: bool = False) ->
     """Format epochMillis:int or epochSeconds:float to home timezone. Pass through str
 
     Parameters:
-        t:		epoch milliseconds: int or epoch seconds: float
+        t:		epoch milliseconds: int, epoch seconds: float, or date str
         fmt:	strftime format string. Default='%Y-%m-%dT%H:%M:%S'
         millis:	True to include 3-digit milliseconds
     Returns:
