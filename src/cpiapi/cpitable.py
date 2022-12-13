@@ -29,8 +29,8 @@ import requests
 # else:
 import threading
 
-from .cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
-from .cpiapi import Cpi
+from cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
+from cpiapi import Cpi
 from loom import Queue
 
 MINUTE = 60.0                   # seconds in a minute

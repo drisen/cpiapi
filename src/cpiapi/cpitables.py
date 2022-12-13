@@ -8,8 +8,8 @@ relational table definition for each CPI API version's actual response
 production performance metrics collection.
 """
 
-from .cpitable import Table, report_type_uses
-from .cpitable import neighborGenerator, real_timeCS
+from cpitable import Table, report_type_uses
+from cpitable import neighborGenerator, real_timeCS
 
 
 def add_table(tables: dict, table: Table):
@@ -728,6 +728,7 @@ add_table(production, Table(
     ('epochMillis', 'sessionEndTime'),  # session end time; or far future time
     # in some cases the sessionEndTime not synchronized to the 5-minute polling
     ('epochMillis', 'sessionStartTime'),
+    ("long", "sessionTime"),  # v3.10: EndTime-StartTime if session finished else currentTime-StartTime
     ('smallint', 'snr'),                # Signal to Noise Ratio from last polling
     ('String', 'ssid'),                 # SSID
     ('double', 'throughput'),           # Session avg. blank while session open
@@ -1039,6 +1040,7 @@ add_table(production, Table(
     ('smallint', 'dot11ax2_4Count'),
     ('smallint', 'dot11ax5AuthCount'),
     ('smallint', 'dot11ax5Count'),
+    ('smallint', 'dot11ax6Count'),  # appeared in 3.10
     ('smallint', 'dot11bAuthCount'),
     ('smallint', 'dot11bCount'),
     ('smallint', 'dot11gAuthCount'),
@@ -1068,7 +1070,16 @@ add_table(production, Table(
     ('smallint', 'wired10MAuthCount'),
     ('smallint', 'wired10MCount'),
     ('smallint', 'wired1GAuthCount'),
-    ('smallint', 'wired1GCount')
+    ('smallint', 'wired1GCount'),
+    ('smallint', 'wired25GAuthCount'),
+    ('smallint', 'wired25GCount'),
+    ('smallint', 'wired2_5GAuthCount'),
+    ('smallint', 'wired2_5GCount'),
+    ('smallint', 'wired40GAuthCount'),
+    ('smallint', 'wired40GCount'),
+    ('smallint', 'wired5GAuthCount'),
+    ('smallint', 'wired40GCount'),
+    ('smallint', 'wired40GCount')
     # ('String', 'adminStatus')	        # undoc. appeared in 2017-02-16, then undoc
 ).set_id_field('@id').set_time_field('collectionTime')
           .set_query_options({'.full': 'true', '.nocount': 'true'})
@@ -1162,6 +1173,9 @@ add_table(production, Table(
     ('long', 'dot11ax5Received'),       # cumulative bytes received
     ('long', 'dot11ax5Sent'),           # cumulative bytes sent
     ('long', 'dot11ax5Throughput'),     # total throughput in Kbps
+    ('long', 'dot11ax6Received'),       # new in v3.10
+    ('long', 'dot11ax6Sent'),           # new in v3.10
+    ('long', 'dot11ax6Throughput'),     # new in v3.10
     ('long', 'dot11bReceived'),         # cumulative bytes received
     ('long', 'dot11bSent'),             # cumulative bytes sent
     ('long', 'dot11bThroughput'),       # cumulative throughput in Kbps
@@ -1200,7 +1214,19 @@ add_table(production, Table(
     ('long', 'wired10MThroughput'),     # 0
     ('long', 'wired1GReceived'),        # 0
     ('long', 'wired1GSent'),            # 0
-    ('long', 'wired1GThroughput')       # 0
+    ('long', 'wired1GThroughput'),       # new in v3.10
+    ('long', 'wired25GReceived'),  # new in v3.10
+    ('long', 'wired25GSent'),  # new in v3.10
+    ('long', 'wired25GThroughput'),  # new in v3.10
+    ('long', 'wired2_5GReceived'),  # new in v3.10
+    ('long', 'wired2_5GSent'),  # new in v3.10
+    ('long', 'wired2_5GThroughput'),  # new in v3.10
+    ('long', 'wired40GReceived'),  # new in v3.10
+    ('long', 'wired40GSent'),  # new in v3.10
+    ('long', 'wired40GThroughput'),  # new in v3.10
+    ('long', 'wired5GReceived'),  # new in v3.10
+    ('long', 'wired5GSent'),  # new in v3.10
+    ('long', 'wired5GThroughput'),  # new in v3.10
 ).set_id_field('@id').set_time_field('collectionTime')
           .set_query_options({'.full': 'true', '.nocount': 'true'})
           )

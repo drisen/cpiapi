@@ -26,7 +26,7 @@ import urllib3
 import threading
 
 from credentials import credentials
-from .cpitime import logErr
+from cpitime import logErr         # from .cpitime import logErr
 
 """ TODO
 Unless the __init__ supplies a semaphore, attempts to create another Cpi with same
