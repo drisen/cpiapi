@@ -29,10 +29,10 @@ import requests
 # else:
 import threading
 
-try:
+try:                            # assume within import of cpiapi package
     from .cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
     from .cpi import Cpi
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):  # __main__ or package testing
     from cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
     from cpi import Cpi
 from loom import Queue

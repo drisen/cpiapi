@@ -8,9 +8,9 @@ relational table definition for each CPI API version's actual response
 production performance metrics collection.
 """
 
-try:
+try:                                    # assume within import of cpiapi package
     from .cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):  # __main__ or package testing
     from cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
 
 

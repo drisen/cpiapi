@@ -27,9 +27,9 @@ import threading
 
 from credentials import credentials
 try:
-    from .cpitime import logErr
-except ModuleNotFoundError:
-    from cpitime import logErr
+    from .cpitime import logErr         # assume within import of cpiapi package
+except (ModuleNotFoundError, ImportError):
+    from cpitime import logErr          # __main__ or package testing
 
 
 """ TODO
