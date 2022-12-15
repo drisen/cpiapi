@@ -26,10 +26,14 @@ import urllib3
 import threading
 
 from credentials import credentials
-if __name__ == '__main__':
-    from cpitime import logErr
-else:
+try:
+    _path = __path__
+    print(f"cpi __path__ is {_path}")
     from .cpitime import logErr
+except NameError:
+    print(f"cpi __path__ is <undefined>>")
+    from cpitime import logErr
+
 
 """ TODO
 Unless the __init__ supplies a semaphore, attempts to create another Cpi with same
