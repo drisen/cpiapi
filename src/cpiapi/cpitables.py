@@ -8,10 +8,13 @@ relational table definition for each CPI API version's actual response
 production performance metrics collection.
 """
 
-if __name__ == '__main__':
-    from cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
-else:
+try:
+    _path = __path__
+    print(f"cpitables __path__ is {_path}")
     from .cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
+except NameError:
+    print(f"cpitables __path__ is <undefined>>")
+    from cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
 
 
 def add_table(tables: dict, table: Table):
