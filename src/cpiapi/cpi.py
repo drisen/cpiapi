@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-# cpiapi.py library Copyright 2019 by Dennis Risen, Case Western Reserve University
+# cpi.py library Copyright 2019 by Dennis Risen, Case Western Reserve University
 #
 """
 Cpi class reads CPI APIs

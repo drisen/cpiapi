@@ -3,7 +3,7 @@ README.md
 pyproject.toml
 setup.cfg
 src/cpiapi/__init__.py
-src/cpiapi/cpiapi.py
+src/cpiapi/cpi.py
 src/cpiapi/cpitable.py
 src/cpiapi/cpitables.py
 src/cpiapi/cpitime.py
