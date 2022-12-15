@@ -30,12 +30,9 @@ import requests
 import threading
 
 try:
-    _path = __path__
-    print(f"cpitable __path__ is {_path}")
     from .cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
     from .cpi import Cpi
-except NameError:
-    print(f"cpitable __path__ is <undefined>")
+except ModuleNotFoundError:
     from cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
     from cpi import Cpi
 from loom import Queue

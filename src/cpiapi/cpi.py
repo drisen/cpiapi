@@ -27,11 +27,8 @@ import threading
 
 from credentials import credentials
 try:
-    _path = __path__
-    print(f"cpi __path__ is {_path}")
     from .cpitime import logErr
-except NameError:
-    print(f"cpi __path__ is <undefined>>")
+except ModuleNotFoundError:
     from cpitime import logErr
 
 

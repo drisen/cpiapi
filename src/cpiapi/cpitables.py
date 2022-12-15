@@ -9,11 +9,8 @@ production performance metrics collection.
 """
 
 try:
-    _path = __path__
-    print(f"cpitables __path__ is {_path}")
     from .cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
-except NameError:
-    print(f"cpitables __path__ is <undefined>>")
+except ModuleNotFoundError:
     from cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
 
 

@@ -1,8 +1,3 @@
-try:
-    _path = __path__
-except NameError:
-    _path = '<not defined>'
-print(f"__init__ __path__ = {_path}")
 from .cpitime import anyToSecs, fromTimeStamp, logErr, millisToSecs, \
     printIf, secsToMillis, strfTime, strpSecs, strpTime, verbose_1
 from .cpi import Cpi, Cache
