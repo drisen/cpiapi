@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="changed internal import references to .xxxxx">
+    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <change beforePath="$PROJECT_DIR$/.idea/cpiapi.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/cpiapi.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpiapi/cpi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpi.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,6 +16,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="PUSH_TAGS">
       <GitPushTagMode>
         <option name="argument" value="--tags" />
@@ -30,8 +34,16 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../awslib" />
-    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Python" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings module-name="cpiapi" is-module-sdk="true">
+        <option name="myUseModuleSdk" value="true" />
+        <option name="myModuleName" value="cpiapi" />
+      </console-settings>
+    </option>
   </component>
   <component name="RunManager" selected="Python.test cpiapi APD">
     <configuration name="build" type="PythonConfigurationType" factoryName="Python">
@@ -67,7 +79,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpiapi.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dar5\PyCharmProjects\cpiapi\src\cpiapi\cpi.py" />
       <option name="PARAMETERS" value="v4/data/AccessPointDetails" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -88,7 +100,7 @@
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpiapi.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\dar5\PyCharmProjects\cpiapi\src\cpiapi\cpi.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -141,10 +153,10 @@
     </configuration>
     <list>
       <item itemvalue="Python.build" />
-      <item itemvalue="Python.upgrade pip build" />
       <item itemvalue="Python.test cpiapi APD" />
-      <item itemvalue="Python.test cpitables" />
       <item itemvalue="Python.test cpiapi image read" />
+      <item itemvalue="Python.test cpitables" />
+      <item itemvalue="Python.upgrade pip build" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -170,7 +182,91 @@
       <option name="project" value="LOCAL" />
       <updated>1649525952273</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="changed internal import references to .xxxxx">
+      <created>1649529642159</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1649529642159</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
+      <created>1649529789901</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1649529789901</updated>
+    </task>
+    <task id="LOCAL-00005" summary="logErr debugging">
+      <created>1654806936347</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1654806936347</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Updated requirements.txt to get from github">
+      <created>1670963033533</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1670963033533</updated>
+    </task>
+    <task id="LOCAL-00007" summary="removed dotted intrapackage references">
+      <created>1671109862916</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1671109862916</updated>
+    </task>
+    <task id="LOCAL-00008" summary="renamed intra-package module cpiapi.py-&gt;cpi.py to remove dotted intra-package references">
+      <created>1671110923108</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1671110923108</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <created>1671111776878</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1671111776878</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <created>1671114762753</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1671114762753</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <created>1671133737961</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1671133737961</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <created>1671133779129</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1671133779129</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <created>1671134910910</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1671134910910</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+      <created>1671135818316</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1671135818316</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -188,6 +284,12 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="moved build requirements from requirements.txt to minimum versions in pyproject.toml&#10;added run steps to --upgrade pip and build&#10;added printIf and verbose_1" />
     <MESSAGE value="changed internal import references to .xxxxx" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed internal import references to .xxxxx" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
+    <MESSAGE value="logErr debugging" />
+    <MESSAGE value="Updated requirements.txt to get from github" />
+    <MESSAGE value="removed dotted intrapackage references" />
+    <MESSAGE value="renamed intra-package module cpiapi.py-&gt;cpi.py to remove dotted intra-package references" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py" />
   </component>
 </project>
