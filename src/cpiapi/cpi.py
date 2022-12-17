@@ -440,7 +440,7 @@ class Cache:
                 if not os.path.isdir(Cache.cache_dir):
                     logErr(f"Cache.Reader cache directory missing. Creating '{Cache.cache_dir}'.")
                     os.mkdir(Cache.cache_dir)
-        return Cache._cacher_(cpi, tbl, base, verbose, kwargs)
+        return Cache._cacher_(cpi, tbl, base, verbose, **kwargs)
 
     @classmethod
     def _reader_(cls, fn) -> Generator:
@@ -476,7 +476,7 @@ class Cache:
             if isinstance(tbl, str):    # simple string URL?
                 reader = Cpi.Reader(cpi, tbl, verbose=verbose)  # Yes. Simply read the URL
             else:                       # More complex table with generator
-                reader = tbl.generator(cpi, tbl, verbose=verbose, kwargs=kwargs)
+                reader = tbl.generator(cpi, tbl, verbose=verbose, **kwargs)
             for rec in reader:
                 out_file.write(json.dumps(rec))
                 out_file.write('\n')
