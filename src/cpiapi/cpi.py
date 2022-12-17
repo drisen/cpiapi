@@ -414,7 +414,7 @@ class Cache:
 
     @classmethod
     def Reader(cls, cpi: Cpi, tbl: Union['Table', str], verbose: int = 0,
-               age: float = 5.0) -> Generator:
+               age: float = 5.0, *kwargs) -> Generator:
         """Reads tbl from cache if it exists < age days old.
         Otherwise reads from cpi, while saving to cache iff all records were read.
 
@@ -423,6 +423,7 @@ class Cache:
             tbl: 	Table, or URL string for Cpi.Reader
             verbose: diagnostic message level
             age:	acceptable age in days
+            kwargs: optional parameters to pass to tbl.generator
 
         """
         if isinstance(tbl, str):        # simple URL string?
@@ -439,7 +440,7 @@ class Cache:
                 if not os.path.isdir(Cache.cache_dir):
                     logErr(f"Cache.Reader cache directory missing. Creating '{Cache.cache_dir}'.")
                     os.mkdir(Cache.cache_dir)
-        return Cache._cacher_(cpi, tbl, base, verbose)
+        return Cache._cacher_(cpi, tbl, base, verbose, kwargs)
 
     @classmethod
     def _reader_(cls, fn) -> Generator:
@@ -457,7 +458,7 @@ class Cache:
 
     @classmethod
     def _cacher_(cls, cpi: Cpi, tbl: Union['Table', str], base: str,
-                 verbose: int = 0) -> Generator:
+                 verbose: int = 0, *kwargs) -> Generator:
         """Read table 'tbl' from cpi, yielding each record while writing to cache.
         Incorporates into the cache iff all records were yielded.
 
@@ -466,6 +467,7 @@ class Cache:
             tbl: 	Table, or URL string for Cpi.Reader
             base: 	base filename in the cache
             verbose:  diagnostic message level
+            kwargs: optional parameters to pass to tbl.generator
 
         Returns:
 
@@ -474,7 +476,7 @@ class Cache:
             if isinstance(tbl, str):    # simple string URL?
                 reader = Cpi.Reader(cpi, tbl, verbose=verbose)  # Yes. Simply read the URL
             else:                       # More complex table with generator
-                reader = tbl.generator(cpi, tbl, verbose=verbose)
+                reader = tbl.generator(cpi, tbl, verbose=verbose, kwargs=kwargs)
             for rec in reader:
                 out_file.write(json.dumps(rec))
                 out_file.write('\n')

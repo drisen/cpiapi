@@ -1084,7 +1084,6 @@ def neighborGenerator(server: Cpi, table: Table, verbose: int = 0,
                     break               # break out of loop and exit
 
     table.verbose = verbose_1(verbose)  # reduced message level for table
-    name_regex = name_regex             # to filter APs by name
     table.recCnt = 0
     table.pager('init')
     # work_q maxsize must exceed server.maxConcurrent
