@@ -5,10 +5,10 @@ Package to GET data-sets from the Cisco Prime Infastructure GET APIs. Includes:
     - **Cpi.Reader** creates a Generator which yields each item from Pager-managed
       GETs of the API. Supports filtering, paging, rate-limiting,
       and predefined or custom Pagers.
-- **Cache** class defines a ~/cache cache of recently read CPI API data.
+- **Cache** class defines a cache in ~/cache of recently read CPI API data.
     - **Cache.Reader** creates a Generator which yields each item from the cache
 or write-through to cache from Cpi.Reader
-- **Catalogs** each entry in the {archive, production, real-time, test} catalogs
+- **Catalogs:** each entry in the {archive, production, real-time, test} catalogs
 defines a relational view of the response
   from current or past version of each GET API. The catalogs also define each Enum and
   each supported type.
@@ -25,21 +25,4 @@ defines a relational view of the response
       implement the semantics required for periodically polled, as-needed
       rolling historical, and other collection approaches.
 - **record Generators** to present a joined view of data retrieved from several APIs  
-- **Logging**
-    - **logErr**`(*s, start:str='\n', end:str='', **kwargs)`  
-      log join(timestamp and s) via email (unix) or print(**kwargs) (Windows)  
-      -`logErr.logSubject = {the subject}`  
-      -`logErr.logToAddr = [email addresses]`
-- **Time conversion** function for handling CPI's time formats presented in the
-enterprise's home time zone
-    - **anyToSecs**`(t, offset:float=0.0) -> float`  
-      Converts milliseconds:int, seconds:float, or ISO datetime:str to seconds:float.
-    - **millisToSecs**`(millis:int, timeDelta:float=0) -> float`  
-    - **secsToMillis**`(t:float, timeDelta:float=0.0) -> int`  
-      Convert to/from epochMilliseconds on foreign system from/to epochSeconds on local system
-      with adjustment for local time ahead of foreign time by timeDelta seconds
-    - **strfTime**`(t, millis:bool=False) -> str`  
-      Format epochMillis:int or epochSeconds:float to configured **home_zone** 
-      timezone
-    - **strpSecs**`(s:str) -> float ` 
-    Parse ISO time text to UTC epochSeconds:float.
+

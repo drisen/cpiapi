@@ -1,14 +1,13 @@
 LICENSE
 README.md
 pyproject.toml
-setup.cfg
 src/cpiapi/__init__.py
 src/cpiapi/cpi.py
 src/cpiapi/cpitable.py
 src/cpiapi/cpitables.py
-src/cpiapi/cpitime.py
 src/cpiapi.egg-info/PKG-INFO
 src/cpiapi.egg-info/SOURCES.txt
 src/cpiapi.egg-info/dependency_links.txt
+src/cpiapi.egg-info/requires.txt
 src/cpiapi.egg-info/top_level.txt
 test/test_cpi.py

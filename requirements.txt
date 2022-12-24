@@ -1,5 +1,5 @@
 pytz>=2022.1
 requests>=2.27
 urllib3>=1.26
-git+https://github.com/drisen/credentials.git
-git+https://github.com/drisen/loom.git
+mylib @ git+https://github.com/drisen/mylib.git
+loom @ git+https://github.com/drisen/loom.git

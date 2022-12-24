@@ -28,12 +28,10 @@ import requests
 #     import direct.stdpy.threading as threading
 # else:
 import threading
-
+from mylib import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
 try:                            # assume within import of cpiapi package
-    from .cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
     from .cpi import Cpi
 except (ModuleNotFoundError, ImportError):  # __main__ or package testing
-    from cpitime import anyToSecs, logErr, printIf, millisToSecs, secsToMillis, strfTime, verbose_1
     from cpi import Cpi
 from loom import Queue
 

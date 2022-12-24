@@ -25,11 +25,7 @@ import urllib3
 # else:
 import threading
 
-from credentials import credentials
-try:
-    from .cpitime import logErr         # assume within import of cpiapi package
-except (ModuleNotFoundError, ImportError):
-    from cpitime import logErr          # __main__ or package testing
+from mylib import credentials, logErr
 
 
 """ TODO
@@ -103,6 +99,9 @@ class Cpi:
         return self
 
     class Reader:
+        """Cisco Prime Infrastructure API reader
+
+        """
         def __init__(self, server: 'Cpi', tableURL: str, filters: dict = None,
                      verbose: int = 0, pager: callable = None, paged: bool = True):
             """Initialize to GET all records in a table.
@@ -323,7 +322,7 @@ class Cpi:
                     else:  # couldn't find the DTO
                         # This response structure is not recognized
                         logErr(self.diag_str(r,
-                            f"Unknown response for {response_name} with @responseType={item.get('@responseType', None)}")
+                            f"Unknown response for {response_name} w/ @responseType={item.get('@responseType', None)}")
                                + f"\nitem={str(item)[:2000]}")
                         raise TypeError
                     if len(entity_list) == 0:  # No [more] records?
@@ -500,7 +499,7 @@ if __name__ == '__main__':  # test with optional command argument: tableURL
         print('arguments are: [relative URL of table to read]. E.g. v4/data/AccessPointDetails')
         exit(1)
     try:
-        cred = credentials.credentials(server)
+        cred = credentials(server)
     except KeyError:
         print(f"No credentials found for server {server}")
         exit(1)
