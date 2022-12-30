@@ -127,6 +127,7 @@ class Cpi:
             self.pager('init')          # initialize pager
             self.dto_names = []         # list of guesses for the DTO name
             self.four_oh_one = 0        # number of consecutive 401 unauthorized
+            self.cpi_crud = 0           # ***** no 500 crud from CPI either
 
         def __iter__(self):  # the iterator. 1st next() starts it
             """Parse through (possibly paged) GET(s) yielding one record at a time.
@@ -140,7 +141,8 @@ class Cpi:
             self.errorSeconds = 0       # Consecutive seconds of sleep from errors
             self.recCnt = 0             # number of records retrieved so far
             self.four_oh_one = 0        # no consecutive 401 Unauthorized Exceptions
-            while True:  # for each page or record until EOF
+            self.cpi_crud = 0           # ***** as yet no 500 crud status-code
+            while True:                 # for each page or record until EOF
                 filters = {'.full': 'true'}
                 if self.paged:
                     filters['.maxResults'] = str(self.server.maxResults)
@@ -168,8 +170,8 @@ class Cpi:
                     logErr(self.diag_str(None, f"{sys.exc_info()[0]} {sys.exc_info()[1]}\n") + self.diag_sleep(4*60))
                     continue            # Could possibly clear. try again
 
-                # Doc. states that any error response is coded as requested
-                # However, codes 401, 403, and 404 and 403 return html for human
+                # Doc. states that error responses are coded as requested (JSON)
+                # However, status_codes 401, 403, and 404 and 403 return HTML
                 self.server.rate_semaphore.release()  # release concurrent count
                 try:
                     response = r.json()
@@ -195,6 +197,15 @@ class Cpi:
                            + self.diag_sleep(10*60))  # ... that could possibly clear
                     continue            # try again
                 elif r.status_code == 500:  # Internal Server Error. e.g. AccessPoint is disassociated
+                    # CPI is buggy. ClientDetails API often returns 500 status code
+                    # ***** remove this logic if Cisco fixes the bug
+                    if self.tableURL.__contains__('ClientDetails'):  # ClientDetails API?
+                        self.cpi_crud += 1
+                        logErr(f"status_code=500 #{self.cpi_crud} from {self.tableURL} {filters}.\n"
+                               + f" Retrying in 90 seconds")
+                        if self.cpi_crud <= 4:
+                            time.sleep(90.0)
+                            continue    # try again for a different result
                     raise ConnectionAbortedError(r.status_code)  # allow try/except to handle w/o printing
                 elif r.status_code == 400:  # returns html page for human
                     logErr(f"status_code={r.status_code}: Access to {self.tableURL} is Bad Request")
@@ -245,9 +256,11 @@ class Cpi:
     {'@responseType': 'operation', ..., 'xxxList': {'xxxTypes': {'xxxType': [
                         {'deviceName': 'Autonomous AP', 'fullPathName': 'Autonomous AP'}
                 '''
-                self.sleepScale = 1     # successful GET resets sleep time scale
-                self.errorSeconds = 0   # and consecutive error-seconds
-                self.four_oh_one = 0    # and consecutive 401 Unauthorized
+                # successful GET resets counters for consecutive errors
+                self.errorSeconds = 0   # Consecutive error-seconds
+                self.four_oh_one = 0    # Consecutive 401 Unauthorized status_code
+                self.cpi_crud = 0       # Consecutive crud in CPI *****
+                self.sleepScale = 1     # successful GET also resets sleep time scale
 
                 mgmt_type = self.tableURL.rpartition('/')[2][:-1]  # the type of a mgmt entry
                 if not isinstance(response, dict):
