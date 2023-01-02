@@ -156,7 +156,7 @@ class Cpi:
                     filters[k] = v
                 self.server.rateLimit()  # sleep as necessary to avoid over-running CPI
                 if self.verbose > 0:
-                    print(f"  filters={filters}")
+                    print(f"\n  filters={filters}")
                 try:
                     r = requests.get(self.server.baseURL + self.tableURL + '.json',
                                      auth=(self.server.username, self.server.password),
@@ -187,7 +187,7 @@ class Cpi:
                 if r.status_code == 200:  # OK, Success
                     pass
                 elif r.status_code == 503:  # Service is up but overloaded?
-                    print(self.diag_sleep(self.server.rateWait))  # ... will be OK in 1 sec
+                    print("Server busy --" + self.diag_sleep(self.server.rateWait))  # ... will be OK in 1 sec
                     continue
                 elif r.status_code in {502}:  # Server Down error...
                     error_document = response['errorDocument']

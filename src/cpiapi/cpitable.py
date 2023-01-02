@@ -43,6 +43,7 @@ new_cd = {}                     # new poll for ClientDetails
 new_cs = {}                     # new poll for ClientSessions
 old_cd = {}                     # previous poll for ClientDetails
 old_cs = {}                     # previous poll for ClientSessions
+brief = '%y-%m-%dT%H:%M'        # brief format date-time
 """TODO
 """
 
@@ -368,13 +369,13 @@ class Pager(Named):
                 # alpha=0 at polled_time-max_time=rollup; alpha=1 at polled_time-max_time=period
                 alpha = (self.rollup - (polled_time - max_time))/(self.rollup - period)
                 delta = Table.catchup*period*alpha ** 3  # 2*alpha*integral[0:x](x dx)
-            print(f"polled_time={strfTime(polled_time)} - max_time={strfTime(max_time)} = ",
+            print(f"polled={strfTime(polled_time, brief)} - max={strfTime(max_time, brief)} = ",
                   f"{(polled_time - max_time)//60}minutes, period={period}, delta={delta}")
         else:                   # no timestamp guidance. Collect at 1/10 normal period
             delta = period/10
         self.nextPoll = polled_time + max(delta, MINUTE)  # be fair to other tables
         print(f"table.verbose={self.verbose}, {self.tableName}.nextPoll ",
-              f"interval {int(delta/60)}minutes at {strfTime(self.nextPoll)}")
+              f"interval {int(delta/60)}minutes at {strfTime(self.nextPoll, brief)}")
 
     def get_batch_size(self) -> int:
         """Return the maximum number of records in a batch."""
@@ -592,10 +593,12 @@ class SubTable(Named):
         self.file: Union[_io.TextIOWrapper, None] = None  # output file
         self.file_name: str = ''        # full pathname of output file
         self.select: list = list()      # build SELECT list from an empty list
-        self.check_fields: bool = False  # True to check field types
-        self.check_enums: bool = False  # True to check enum values
+        self.check_fields: int = -1     # down-counter to 0 to check field types
+        self.check_enums: int = -1      # down-counter to 0 to check enum values
         self.field_counts = defaultdict(lambda: defaultdict(int))  # {field_name:{type(value):count, ...}, ...}
         self.field_values = defaultdict(lambda: defaultdict(int))  # {field_name:{value:count, ...}, ...}
+        self.sample_enums: int = -1     # re-initialization value for check_enums
+        self.sample_fields: int = -1    # re-initialization value for check_fields
         self.fieldTypes: dict = dict()  # build fieldTypes from an empty dict
         self.key_defs: list = keys
         self.parent: Union[Table, None] = None       # Initially no parent

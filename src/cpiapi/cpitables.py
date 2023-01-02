@@ -1042,7 +1042,8 @@ add_table(production, Table(
     ('smallint', 'dot11ax2_4Count'),
     ('smallint', 'dot11ax5AuthCount'),
     ('smallint', 'dot11ax5Count'),
-    ('smallint', 'dot11ax6Count'),  # appeared in 3.10
+    ('smallint', 'dot11ax6AuthCount'),  # appeared in 3.10
+    ('smallint', 'dot11ax6Count'),      # appeared in 3.10
     ('smallint', 'dot11bAuthCount'),
     ('smallint', 'dot11bCount'),
     ('smallint', 'dot11gAuthCount'),
@@ -1080,8 +1081,7 @@ add_table(production, Table(
     ('smallint', 'wired40GAuthCount'),
     ('smallint', 'wired40GCount'),
     ('smallint', 'wired5GAuthCount'),
-    ('smallint', 'wired40GCount'),
-    ('smallint', 'wired40GCount')
+    ('smallint', 'wired5GCount')
     # ('String', 'adminStatus')	        # undoc. appeared in 2017-02-16, then undoc
 ).set_id_field('@id').set_time_field('collectionTime')
           .set_query_options({'.full': 'true', '.nocount': 'true'})
