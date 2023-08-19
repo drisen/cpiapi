@@ -2,52 +2,53 @@
 # cpi.py library Copyright 2019 by Dennis Risen, Case Western Reserve University
 #
 """
-Cpi class reads CPI APIs
-Cache class manages a json file cache of recently read CPI API responses
+Cpi class reads CPI's APIs
+Cache class manages a json file cache of recently read CPI API data
 """
 
+""" TODO
+Cisco now appears to be correctly populating queryResponse['entity'][i]['@dtoType']
+with dto_name={variant of api name}DTO. Verify with all API that it is correct
+and use it, rather than the dot_names[:] guesses.
+
+Unless the __init__ supplies a semaphore, it attempts to create another Cpi with
+the same server and user as an existing instance will return the existing instance.
+I.e. use constructor or metaclass=Unique.
+
+Obtain and install certificate for ncs01.case.edu
+
+Better support concurrent communications with differently configured servers by
+refactoring rateWait, maxResults, ... from the class to the server instance.
+"""
 # requires urllib3[secure]
-# obtain and install certificate for ncs01.case.edu
-#
 
 from collections.abc import Generator
-from typing import Union
+from typing import Callable, Union
 import json
 import requests
 import os
+import pprint
 import sys
 import time
 import urllib3
 
-# direct threading is Panda3d incompatible alternative for threading
+# direct threading is Panda3d's incompatible alternative for threading
 # if 'direct.stdpy.threading' in sys.modules:
 #     import direct.stdpy.threading as threading
 # else:
 import threading
-
 from mylib import credentials, logErr
-
-
-""" TODO
-Unless the __init__ supplies a semaphore, attempts to create another Cpi with same
-server and user as an existing instance will return the existing instance.
-I.e. use constructor or metaclass=Unique
-obtain and install certificate for ncs01.case.edu
-"""
-
-
-# import certifi  # fix certificate handling later *****
+# import certifi        # fix certificate handling later *****
 
 
 class Cpi:
     """A Cisco Prime Infrastructure server instance."""
-    # Populate inheritable attributes with Cisco defaults
+    # Default values, shared by all instances
     rateWait = 1                    # seconds to wait to clear service busy
     maxResults = 1000               # maximum number of results per GET
     TIMEOUT = 80.0                  # seconds to wait between packets
-    # 30 seconds is occasionally insufficient for, e.g. HistoricalRfLoadStats
-    timeDelta = 0.0             # my epochSeconds === server's epochSeconds+timeDelta
-    POSTING_DELTA = 6*60.0          # records posted within 6 minutes of event
+    timeDelta = 0.0         # my epochSeconds === server's epochSeconds+timeDelta
+    POSTING_DELTA = 6*60.0  # CPI posts record in database <= 6*60 seconds of event
     # rate limiting attributes
     segmentSize = .100              # seconds per window segment
     windowSize = 1.000              # seconds in CPI rate-limiting window
@@ -57,24 +58,24 @@ class Cpi:
 
     def __init__(self, username: str, password: str,
                  baseURL: str = "https://ncs01.case.edu/webacs/api/",
-                 semaphore: threading.Semaphore = None):
-        """Initialize a CPI server instance with username, password, and server base URL.
-        Parameters:
-            username (str):			username to use on the designated server
-            password (str):			password
-            baseURL (str):			https URL of the api base on the server
-            semaphore (threading.Semaphore):	Use this semaphore, rather than internal, for each GET
+                 semaphore: Union[threading.Semaphore, None] = None):
+        """Create a CPI server instance with username, password, and server base URL.
+
+        :param username:    username to use on the designated server
+        :param password:    password
+        :param baseURL:     https URL of the api base on the server
+        :param semaphore:   Use this semaphore, rather than internal, for each GET
         """
         self.username = username
         self.password = password
         self.baseURL = baseURL          # URL of the server APIs
         self.history = []               # epochSeconds of each recent request to CPI
-        self.semaphore = threading.Semaphore() if semaphore is None else semaphore  # for multi-thread locking
+        self.semaphore = semaphore if semaphore else threading.Semaphore()  # for multi-thread locking
         self.rate_semaphore = threading.Semaphore(self.maxConcurrent)
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # ***** until certificates are installed
 
     def rateLimit(self):
-        """Sleep as necessary to limit requests per windowSize in msec."""
+        """Sleep as necessary to limit requests per ``windowSize`` in msec."""
         # CPI stores the history of requests in segmentSize buckets
         # CPI's and my buckets may be out of sync by as much as segmentSize
         # so pad tests by segmentSize
@@ -94,49 +95,62 @@ class Cpi:
         self.semaphore.release()        # exit critical section
 
     def setTimeDelta(self, delta: float) -> 'Cpi':
-        """Sets default seconds offset < my epochSeconds - server's epochSeconds."""
+        """Sets default seconds offset < (my epochSeconds - server's epochSeconds).
+
+        If the server is dynamically adding records to the API data while the client
+        is reading data, and the client has no better way of filtering for new
+        records than using the server's timestamp, a significant skew between the
+        client's and server's clock could cause failure to collect some new records.
+
+        :param delta:   lower estimate of my time.time() - server' time.time()
+        :return:        updated self
+        """
         self.timeDelta = delta
         return self
 
     class Reader:
-        """Cisco Prime Infrastructure API reader
-
+        """Reader for Cisco Prime Infrastructure APIs
         """
         def __init__(self, server: 'Cpi', tableURL: str, filters: dict = None,
-                     verbose: int = 0, pager: callable = None, paged: bool = True):
-            """Initialize to GET all records in a table.
-            Parameters:
-                server (Cpi):		a Cisco Prime Infrastructure instance
-                tableURL (str):		API URL relative to baseURL
-                filters	(dict):		additional filtering to apply in the URL
-                verbose (int):		to print additional information
-                pager (function):	pager() returns a filter dict
-                paged (bool):		True if the table API implements paging
+                     verbose: int = 0, pager: Union[Callable, None] = None, paged: bool = True):
+            """Create Reader to GET all records from an API
 
+            :param server:      a Cisco Prime Infrastructure instance
+            :param tableURL:    API URL relative to baseURL
+            :param filters:     additional filtering to apply in the URL
+            :param verbose:     diagnostic messaging level
+            :param pager:       results paging manager
+            :param paged:       True if the table API implements paging
             """
-            self.tableURL = tableURL
-            self.filters = {} if filters is None else filters
-            self.server = server
-            self.verbose = verbose
-            if pager is None:
-                self.pager = self.defaultPager
-            else:
-                self.pager = pager
+            self.tableURL = tableURL    # API URL relative to baseURL
+            self.filters = filters if filters else {}
+            self.server = server        # Cisco Prime Infrastructure instance
+            self.verbose = verbose      # diagnostic messaging level
+            self.pager = pager if pager else self.defaultPager
             self.paged = paged          # whether the API supports paging
             self.recCnt = 0             # number of records retrieved so far
             self.pager('init')          # initialize pager
+            # The listEntityInstances @responseType's entity is a list of instances.
+            # Each instance should have a @dtoType which should be the key for the
+            # instance's dict of attribute values.
+            # However, the @dtoType value has not reliably been the correct key.
+            # This Reader calculates two guesses for the correct value, based on
+            # the API name. dto_names[0] is the guess that most recently worked.
             self.dto_names = []         # list of guesses for the DTO name
             self.four_oh_one = 0        # number of consecutive 401 unauthorized
-            self.cpi_crud = 0           # ***** no 500 crud from CPI either
+            self.cpi_crud = 0           # ***** num of consecutive 500 crud from API
 
-        def __iter__(self):  # the iterator. 1st next() starts it
+        def __iter__(self) -> Generator:  # the iterator. 1st next() starts it
             """Parse through (possibly paged) GET(s) yielding one record at a time.
 
-            Returns: with self.result = requests.get(...)
+            :return:    yields self.result = requests.get(...)
                 dict: attribute:value pairs
-
+                :raises ConnectionError
+                :raises ConnectionAbortedError on consistent internal server error
+                :raises ConnectionRefusedError
+                :raises TypeError on invalid response format
             """
-            self.sleepScale = 1     # Each consecutive errors will adjust sleep by 2x
+            self.backoff = 1  # scale factor for diag_sleep. 2x for each consecutive
             self.sleepingSeconds = 0    # Total seconds spent sleeping
             self.errorSeconds = 0       # Consecutive seconds of sleep from errors
             self.recCnt = 0             # number of records retrieved so far
@@ -156,7 +170,7 @@ class Cpi:
                     filters[k] = v
                 self.server.rateLimit()  # sleep as necessary to avoid over-running CPI
                 if self.verbose > 0:
-                    print(f"\n  filters={filters}")
+                    print(f"  filters={filters}", flush=True)
                 try:
                     r = requests.get(self.server.baseURL + self.tableURL + '.json',
                                      auth=(self.server.username, self.server.password),
@@ -187,7 +201,9 @@ class Cpi:
                 if r.status_code == 200:  # OK, Success
                     pass
                 elif r.status_code == 503:  # Service is up but overloaded?
-                    print("Server busy --" + self.diag_sleep(self.server.rateWait))  # ... will be OK in 1 sec
+                    # Yes, but will be OK in 1 sec
+                    print("Server busy --" + self.diag_sleep(self.server.rateWait))
+                    sys.stdout.flush()
                     continue
                 elif r.status_code in {502}:  # Server Down error...
                     error_document = response['errorDocument']
@@ -210,7 +226,7 @@ class Cpi:
                 elif r.status_code == 400:  # returns html page for human
                     logErr(f"status_code={r.status_code}: Access to {self.tableURL} is Bad Request")
                     print(r.url)
-                    print(r.text[:2000])
+                    print(r.text[:2000], flush=True)
                     raise ConnectionRefusedError(r.status_code)
                 elif r.status_code == 401:  # returns html page for human
                     logErr(f"status_code={r.status_code}: Access to {self.tableURL} {filters}",
@@ -260,8 +276,10 @@ class Cpi:
                 self.errorSeconds = 0   # Consecutive error-seconds
                 self.four_oh_one = 0    # Consecutive 401 Unauthorized status_code
                 self.cpi_crud = 0       # Consecutive crud in CPI *****
-                self.sleepScale = 1     # successful GET also resets sleep time scale
-
+                self.backoff = 1     # successful GET also resets sleep time scale
+                if self.tableURL.__contains__('ClientSessions'):  # *****
+                    print(f"len(response)={len(response)}")
+                    print(pprint.pformat(response.get('queryResponse', response))[:4000])
                 mgmt_type = self.tableURL.rpartition('/')[2][:-1]  # the type of a mgmt entry
                 if not isinstance(response, dict):
                     logErr(self.diag_str(r, f"type(response)={type(response)} is not a dict"))
@@ -294,6 +312,8 @@ class Cpi:
                     else:
                         paging = False
                     '''
+                    if self.recCnt < 2001 and self.tableURL.__contains__('ClientSessions'):  # *****
+                        print(f"len(entity_list)={len(entity_list)}, dto_names={self.dto_names}")
                     if len(entity_list) == 0:  # No [more] records?
                         return
                     if len(self.dto_names) == 0:  # need to initialize dto_names?
@@ -309,10 +329,20 @@ class Cpi:
                                 self.dto_names.append(self.dto_names.pop(0))  # rotate the guesses
                                 x = row[self.dto_names[0]]
                             except KeyError:
-                                logErr(self.diag_str(r, f"Unknown DTO type"))
+                                keys = ', '.join(xx for xx in row)
+                                print(f"Couldn't find {self.dto_names[0]} in [{keys}]")  # *****
+                                logErr(self.diag_str(r, f"Couldn't find {self.dto_names[0]} in [{keys}]"))
                                 return
+                        if self.recCnt < 10 and self.tableURL.__contains__('ClientSessions'):  # *****
+                            print(f"yielding {self.recCnt} ", end='')
                         yield x
+                        if self.recCnt < 10 and self.tableURL.__contains__('ClientSessions'):  # *****
+                            print(f"continuing ", end='' if self.recCnt%10 else '\n')
+                    if self.tableURL.__contains__('ClientSessions'):  # *****
+                        print(f"exited for after {self.recCnt} records")
                     if not self.paged:  # the API does not support paging?
+                        if self.tableURL.__contains__('ClientSessions'):  # *****
+                            print(f"doesn't support paging")
                         return          # Every record was returned in the first response
                 elif response_name == 'mgmtResponse' and item.get('@responseType', None) == 'operation' \
                         and mgmt_type + 's' in item.get(mgmt_type + 'List', dict()) \
@@ -351,38 +381,33 @@ class Cpi:
                         f"Unknown response for {response_name} with @responseType={item.get('@responseType', None)}")
                            + f"\nitem={str(item)[:2000]}")
                     raise TypeError
-
         # fall-through and return when all pages have been processed
 
-        def defaultPager(self, param):
-            """Calculate paging filter(s).
-            Cpi.Reader.__init__ calls pager('init') for any initialization
-            Cpi.Reader.__iter__ calls pager('filter') before issuing each GET
-            The returned filters will get all rows of a static CPI API that is
+        def defaultPager(self, param: Union[str, dict] = 'filter') -> Union[dict, str]:
+            """Default paging manager.
+
+            Pages by .firstResult={recCnt}
+            The returned filter will GET all rows of a static CPI API that is
             "paged". A more sophisticated pager is required for predictable
             retrieval of rows of a table in which CPI's asynchronous updates
             cause the selected set to change during the poll, other than pure
             addition of rows at the end.
 
-            Parameters:
-                param (str):	'init' to initialize; 'filter' to return filter
+            :param param:   'filter' to return a filter
+            :return:    filter if param=='filter' else None
             """
             if param == 'filter':
                 return {'.firstResult': self.recCnt}
 
-        def diag_str(self, r, msg: str = '') -> str:
-            """Print diagnostic details of a Requests Response, then sleeps seconds.
-            If error persists for >1 hour, raise ConnectionError.
+        def diag_str(self, r: Union[requests.Response, None], msg: str = '') -> str:
+            """Format diagnostic details of a Requests Response.
 
-            Parameters:
-                r (Response):	the Response returned from requests.*
-                msg (str):		message
-
-            Returns:
-                accumulated str of diagnostics
+            :param r:       the Response returned from requests.*
+            :param msg:     diagnostic message
+            :return:        formatted diagnostic details
             """
             s = '' if msg == '' else msg + '\n'
-            if r is None:               # Is there a response from requests?
+            if r is None:               # Was there a response from requests?
                 s += self.server.baseURL + self.tableURL + ' '  # No, append URL
             else:                       # Yes, append response fields
                 s += f"url={r.url}\nStatus_code={r.status_code}\n"
@@ -395,13 +420,18 @@ class Cpi:
             return s
 
         def diag_sleep(self, seconds: int) -> str:
-            """Sleep. Update [sleep|error]Seconds. Raise error if >hour."""
+            """Sleep ``backoff*seconds``, where ``backoff *=2`` for each consecutive error.
+
+            :param seconds:     seconds to sleep
+            :return:            f"Slept {seconds} seconds"
+            :raises ConnectionError if total consecutive error sleep time > max_timeout.
+            """
             if self.errorSeconds > Cpi.max_timeout:  # >hour of sleeping w/o success?
                 raise ConnectionError   # Yes, give up
-            if self.errorSeconds > 0 and self.sleepScale < 16:  # Consecutive error without success?
-                self.sleepScale *= 2    # Sleep yet twice longer
+            if self.errorSeconds > 0 and self.backoff < 16:  # Consecutive error without success?
+                self.backoff *= 2    # Sleep yet twice longer
             if seconds > 0:
-                seconds *= self.sleepScale  # scaled for consecutive errors
+                seconds *= self.backoff  # scaled for consecutive errors
                 self.errorSeconds += seconds  # consecutive seconds in error
                 self.sleepingSeconds += seconds  # Total time sleeping
                 time.sleep(seconds)     # sleep
@@ -411,7 +441,8 @@ class Cpi:
 
 class Cache:
     """
-    A cache of API contents recently read from CPI by the current user.
+    Manage a cache, in ~/cache directory, of API contents recently read from CPI
+    by the current user.
     """
     cache_dir = os.path.join(os.path.expanduser('~'), 'cache')
     cache_semaphore = threading.Semaphore()
@@ -419,7 +450,6 @@ class Cache:
     @classmethod
     def clear(cls):
         """Clear the cache
-
         """
         for fn in os.listdir(Cache.cache_dir):
             os.remove(os.path.join(Cache.cache_dir, fn))
@@ -427,16 +457,15 @@ class Cache:
     @classmethod
     def Reader(cls, cpi: Cpi, tbl: Union['Table', str], verbose: int = 0,
                age: float = 5.0, **kwargs) -> Generator:
-        """Reads tbl from cache if it exists < age days old.
-        Otherwise reads from cpi, while saving to cache iff all records were read.
+        """Reads ``tbl`` from the cache if data exists  and < ``age`` days old.
+        Otherwise reads from ``cpi``, while saving to cache iff all records were read.
 
-        Args:
-            cpi: 	Cisco Prime Infrastructure server instance
-            tbl: 	Table, or URL string for Cpi.Reader
-            verbose: diagnostic message level
-            age:	acceptable age in days
-            kwargs: optional key-word parameters to pass to tbl.generator
-
+        :param cpi:     Cisco Prime Infrastructure server instance
+        :param tbl:     Table, or URL string for Cpi.Reader
+        :param verbose: diagnostic message level
+        :param age:     acceptable age in days
+        :param kwargs:  optional key-word parameters to pass to tbl.generator
+        :return:        Cache._reader_ or Cache._cacher_
         """
         if isinstance(tbl, str):        # simple URL string?
             fn = tbl.replace('/', '_').replace('\\', '_')  # map slashes to underscores
@@ -447,7 +476,7 @@ class Cache:
             stat = os.stat(base + '.json')
             if stat.st_mtime > time.time() - age*24*60*60:
                 return Cache._reader_(base + '.json')
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             with cls.cache_semaphore:   # need atomic (isdir and mkdir)
                 if not os.path.isdir(Cache.cache_dir):
                     logErr(f"Cache.Reader cache directory missing. Creating '{Cache.cache_dir}'.")
@@ -458,11 +487,8 @@ class Cache:
     def _reader_(cls, fn) -> Generator:
         """
 
-        Args:
-            fn: 	file (in cache) of JSON records to read
-
-        Returns:	Generator
-
+        :param fn:  file pathname (in cache) of JSON records to read
+        :return:    Generator to read from the cache
         """
         with open(fn, 'rt') as in_file:
             for line in in_file:
@@ -471,18 +497,15 @@ class Cache:
     @classmethod
     def _cacher_(cls, cpi: Cpi, tbl: Union['Table', str], base: str,
                  verbose: int = 0, **kwargs) -> Generator:
-        """Read table 'tbl' from cpi, yielding each record while writing to cache.
-        Incorporates into the cache iff all records were yielded.
+        """Read table ``tbl`` from ``cpi``, yielding each record while writing to
+        cache. Incorporates data into the cache iff all records were yielded.
 
-        Args:
-            cpi: 	Cisco Prime Infrastructure server instance
-            tbl: 	Table, or URL string for Cpi.Reader
-            base: 	base filename in the cache
-            verbose:  diagnostic message level
-            kwargs: optional key-word parameters to pass to tbl.generator
-
-        Returns:
-
+        :param cpi:     Cisco Prime Infrastructure server instance
+        :param tbl:     Table, or URL string for Cpi.Reader
+        :param base:    base filename in the cache
+        :param verbose: diagnostic message level
+        :param kwargs:  optional key-word parameters to pass to tbl.generator
+        :return:        Generator yields dict
         """
         with open(base + '.tmp', 'wt') as out_file:
             if isinstance(tbl, str):    # simple string URL?
@@ -501,10 +524,86 @@ class Cache:
                 pass
             os.rename(base + '.tmp', base + '.json')
 
+    @classmethod
+    def expire(cls, age: float, kilobytes: int) -> str:
+        """Remove from the cache: each tmp file, each data file > ``age`` days old,
+        and additional files by descending age, as necessary, to reduce total
+        cache storage to ``kilobytes`` KB.
+
+        Returns a summary of expired and resulting storage use
+
+        :param age:         delete files older than age days
+        :param kilobytes:   maximum allowed cache storage
+        :return:            summary of storage deleted and remaining
+        """
+        bytes_deleted = 0
+        bytes_remaining = 0
+        files_deleted = 0
+        files_remaining = 0
+        files: list = []            # [(mtime, size, pathname), ...]
+        # delete .tmp files and other files older than age days
+        for entry in os.scandir(Cache.cache_dir):
+            entry: os.DirEntry
+            if entry.is_dir():
+                continue                # ignore sub-directories
+            fn = entry.name
+            stat = entry.stat(follow_symlinks=False)
+            size = stat.st_size         # file size in bytes
+            if fn[-4:] == ".tmp":
+                try:                    # try to delete because it is a .tmp
+                    os.remove(os.path.join(Cache.cache_dir, fn))
+                    files_deleted += 1
+                    bytes_deleted += size
+                except FileNotFoundError:  # file disappeared!
+                    pass                # as if it were never there
+                except OSError:         # Could not delete
+                    files_remaining += 1
+                    bytes_remaining += size
+            elif stat.st_mtime < time.time() + 24*60*60*age:
+                try:                    # file is older than age. Delete it.
+                    os.remove(os.path.join(Cache.cache_dir, fn))
+                    files_deleted += 1
+                    bytes_deleted += size
+                except FileNotFoundError:   # file disappeared!
+                    pass                # as if it were never there
+                except OSError:         # Failure. E.g permissions or in use
+                    # record, but adding as a candidate is probably fruitless
+                    files_remaining += 1
+                    bytes_remaining += size
+            else:                       # not .tmp and not too old
+                # add to list as a candidate for deletion based on age
+                files.append((stat.st_mtime, size, fn))
+                files_remaining += 1
+                bytes_remaining += size
+        files.sort()                    # sort ascending by mtime, size, pathname
+        # Delete additional files, as necessary, to reduce storage to < kilobytes
+        while len(files) > 0 and bytes_remaining > 1000*kilobytes:
+            mtime, size, fn = files.pop(0)
+            # Assume that the file is successfully deleted
+            files_remaining -= 1
+            bytes_remaining -= size
+            try:
+                os.remove(os.path.join(Cache.cache_dir, fn))
+                files_deleted += 1      # successfully deleted too
+                bytes_deleted += size
+            except FileNotFoundError:   # not successfully deleted
+                pass                    # as if it were never there
+            except OSError:
+                files_remaining += 1    # file still remains, but not deleted
+                bytes_remaining += size
+        # construct summary status
+        s = f"{files_deleted} files totaling {bytes_deleted:,} bytes deleted" \
+            + f"{files_remaining} files totaling {bytes_remaining:,} bytes in cache"
+        return s
+
 
 if __name__ == '__main__':  # test with optional command argument: tableURL
+    import os
+    import sys
+    print(f"Python {sys.version}")
+    print(f"PYTHONPATH={os.environ['PYTHONPATH']}")
+    print('path=\n' + '\n'.join(sys.path))
     from sys import argv, exit
-    import pprint
     print("must be connected to case.edu network to run this test")
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     server = 'ncs01.case.edu'

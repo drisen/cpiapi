@@ -1,3 +1,6 @@
+"""
+this file is required until production is upgraded to > 3.8
+"""
 from .cpi import Cpi, Cache
 from .cpitable import allTypes, date_bad, find_table, numericTypes, \
     neighborGenerator, Pager, SubTable, Table, to_enum

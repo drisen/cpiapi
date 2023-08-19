@@ -4,16 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py">
+    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="pending: Updated docstrings to consistent form. Added the Cache.expire method.&#10;debugging ClientSessions API">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/cpiapi.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/cpiapi.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/cpiapi-2.1.2-py3-none-any.whl" beforeDir="false" afterPath="$PROJECT_DIR$/dist/cpiapi-2.1.2-py3-none-any.whl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/cpiapi-2.1.2.tar.gz" beforeDir="false" afterPath="$PROJECT_DIR$/dist/cpiapi-2.1.2.tar.gz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpiapi.egg-info/PKG-INFO" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi.egg-info/PKG-INFO" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpiapi.egg-info/requires.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi.egg-info/requires.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpiapi/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/__init__pre38.old_py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/cpiapi/cpi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpiapi/cpitable.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpitable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cpiapi/cpitables.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/cpiapi/cpitables.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="PUSH_AUTO_UPDATE" value="true" />
@@ -25,6 +42,16 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/cpiapi/cpitable.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/cpiapi/cpitables.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/cpiapi/__init__pre38.old_py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/cpiapi/cpi.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/requirements.txt" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/.gitignore" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/pyproject.toml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/verify_sorted.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectId" id="27QxQeQHlNKyJY85LLONtydJq7C" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -34,18 +61,18 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../mylib" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
-      <console-settings module-name="cpiapi" is-module-sdk="true">
-        <option name="myUseModuleSdk" value="true" />
+      <console-settings module-name="cpiapi" sdk-home="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe">
+        <option name="mySdkHome" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe" />
         <option name="myModuleName" value="cpiapi" />
       </console-settings>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test cpiapi APD">
+  <component name="RunManager" selected="Python.build">
     <configuration name="build" type="PythonConfigurationType" factoryName="Python">
       <module name="cpiapi" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -53,9 +80,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="build" />
@@ -67,6 +94,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test 3.6 cpiapi APD" type="PythonConfigurationType" factoryName="Python">
+      <module name="cpiapi" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="PYTHONPATH" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Lib\site-packages" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv36\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpi.py" />
+      <option name="PARAMETERS" value="v4/data/AccessPointDetails" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="test cpiapi APD" type="PythonConfigurationType" factoryName="Python">
       <module name="cpiapi" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -74,12 +123,12 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\dar5\PyCharmProjects\cpiapi\src\cpiapi\cpi.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpi.py" />
       <option name="PARAMETERS" value="v4/data/AccessPointDetails" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -95,12 +144,12 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\dar5\PyCharmProjects\cpiapi\src\cpiapi\cpi.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpi.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -116,7 +165,51 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpitables.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test3.6 cpiapi image read" type="PythonConfigurationType" factoryName="Python">
+      <module name="cpiapi" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="PYTHONPATH" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Lib\site-packages" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv36\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/cpiapi/cpi.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test3.6 cpitables" type="PythonConfigurationType" factoryName="Python">
+      <module name="cpiapi" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="PYTHONPATH" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Lib\site-packages" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv36\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -137,9 +230,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="pip" />
@@ -151,12 +244,37 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="verify_sorted 3.6" type="PythonConfigurationType" factoryName="Python">
+      <module name="cpiapi" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\dar5\PyCharmProjects\cpiapi\venv36\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../collect/testing/files" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/verify_sorted.py" />
+      <option name="PARAMETERS" value="*_ClientSessionsv4.csv" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.build" />
+      <item itemvalue="Python.test 3.6 cpiapi APD" />
       <item itemvalue="Python.test cpiapi APD" />
       <item itemvalue="Python.test cpiapi image read" />
       <item itemvalue="Python.test cpitables" />
+      <item itemvalue="Python.test3.6 cpiapi image read" />
+      <item itemvalue="Python.test3.6 cpitables" />
       <item itemvalue="Python.upgrade pip build" />
+      <item itemvalue="Python.verify_sorted 3.6" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -266,7 +384,77 @@
       <option name="project" value="LOCAL" />
       <updated>1671135818316</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="2.0.7 Cache.Reader now passes through optional kwargs to table's generator">
+      <created>1671318306423</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1671318306423</updated>
+    </task>
+    <task id="LOCAL-00016" summary="2.0.7 Cache.Reader now passes through optional kwargs to table's generator">
+      <created>1671319644716</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1671319644716</updated>
+    </task>
+    <task id="LOCAL-00017" summary="2.0.7 Cache.Reader now passes through optional kwargs to table's generator">
+      <created>1671320190346</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1671320190346</updated>
+    </task>
+    <task id="LOCAL-00018" summary="2.0.0 updated build to pure toml">
+      <created>1671923086980</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1671923086980</updated>
+    </task>
+    <task id="LOCAL-00019" summary="2.0.0 updated build to pure toml">
+      <created>1671942415379</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1671942415379</updated>
+    </task>
+    <task id="LOCAL-00020" summary="2.0.0 updated build to pure toml">
+      <created>1671942496080</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1671942496080</updated>
+    </task>
+    <task id="LOCAL-00021" summary="2.1 workaround for ClientDetails' crud error">
+      <created>1672424421603</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1672424421603</updated>
+    </task>
+    <task id="LOCAL-00022" summary="2.1 workaround for ClientDetails' crud error">
+      <created>1672437163402</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1672437163402</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Added new fields in [Historical]ClientCounts.&#10;Supported checking a sampling of records by adding sample_[enums|fields] attributes to SubTable.">
+      <created>1672682737512</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1672682737512</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Added new fields in [Historical]ClientCounts.&#10;Supported checking a sampling of records by adding sample_[enums|fields] attributes to SubTable.">
+      <created>1672683080341</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1672683080341</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -290,6 +478,10 @@
     <MESSAGE value="removed dotted intrapackage references" />
     <MESSAGE value="renamed intra-package module cpiapi.py-&gt;cpi.py to remove dotted intra-package references" />
     <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;dist/cpiapi-2.0.6-py3-none-any.whl&#10;#&#9;dist/cpiapi-2.0.6.tar.gz&#10;#&#9;src/cpiapi/__init__.py" />
+    <MESSAGE value="2.0.7 Cache.Reader now passes through optional kwargs to table's generator" />
+    <MESSAGE value="2.0.0 updated build to pure toml" />
+    <MESSAGE value="2.1 workaround for ClientDetails' crud error" />
+    <MESSAGE value="Added new fields in [Historical]ClientCounts.&#10;Supported checking a sampling of records by adding sample_[enums|fields] attributes to SubTable." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new fields in [Historical]ClientCounts.&#10;Supported checking a sampling of records by adding sample_[enums|fields] attributes to SubTable." />
   </component>
 </project>
