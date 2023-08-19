@@ -4,9 +4,13 @@
 """
 Defines the classes (Named, SubTable, Table, Pagers), Pager instances and
 record generators for semantically consistent access to the CPI APIs
-through relational table definitions.
-Defines the allowable field types and known Enums
+through relational table definitions base on the sometimes hierarchical data.
 
+Defines the allowable field types and known Enums
+"""
+""" To Do
+Support a time series of changing FLOOR_AREA/OUTDOOR_AREA images by timestamping
+each image with the epochTIme first acquired.
 """
 
 from collections import defaultdict
@@ -35,44 +39,38 @@ except (ModuleNotFoundError, ImportError):  # __main__ or package testing
     from cpi import Cpi
 from loom import Queue
 
-MINUTE = 60.0                   # seconds in a minute
-HOUR = 60*MINUTE                # seconds in an hour
-DAY = 24*HOUR                   # seconds in a day
+MINUTE = 60.0                   # CONSTANT seconds in a minute
+HOUR = 60*MINUTE                # CONSTANT seconds in an hour
+DAY = 24*HOUR                   # CONSTANT seconds in a day
 
 new_cd = {}                     # new poll for ClientDetails
 new_cs = {}                     # new poll for ClientSessions
 old_cd = {}                     # previous poll for ClientDetails
 old_cs = {}                     # previous poll for ClientSessions
 brief = '%y-%m-%dT%H:%M'        # brief format date-time
-"""TODO
-"""
 
 
 def a_type(name: str, input_example: object, sql_type: str, hive_type: str, hive_regex: str):
-    """Add a data type to the types dict.
+    """Add a data type to the allTypes dict
 
-    Parameters:
-        name (str):			type name
-        input_example (object):	example of input data, for input type checking
-        sql_type (str):		equivalent type name in SQL
-        hive_type (str):	equivalent type name in Hive
-        hive_regex (str):	Regex for parsing output field into Hive
+    :param name:            type name
+    :param input_example:   example of input data, for input type checking
+    :param sql_type:        equivalent type name in SQL
+    :param hive_type:       equivalent type name in Hive
+    :param hive_regex:      Regex for parsing output field into Hive
     """
     global allTypes
+    # field(..., include=None) may create a private copy with a 'check':False entry
     allTypes[name] = {'name': name, 'type': type(input_example),
                       'sql_type': sql_type, 'hive_type': hive_type, 'hive_regex': hive_regex,
                       'UsageCount': 0, 'values': None}  # values is None --> not an enum
 
 
-# a type instance may create a private copy with a 'check':False entry
-
-
 def a_enum(name: str, values: list):
-    """Add an enum data type to the types dict.
+    """Add an enum data type to the allTypes dict
 
-    Parameters:
-        name (str:)			type name
-        values (list):		each allowed value
+    :param name:        type name
+    :param values:      each allowed value
     """
     global allTypes
     global enum_regex
@@ -83,9 +81,6 @@ def a_enum(name: str, values: list):
         i += 1
     allTypes[name] = {'name': name, 'type': type('abc'), 'sql_type': 'name',
                       'hive_type': name, 'hive_regex': enum_regex, 'UsageCount': 0, 'values': v}
-
-
-# a type instance may create a private copy with a 'check':False entry
 
 
 enum_regex = r'(?:(?:"((?:(?:"")|[^"])*)")|([^,"]*)'
@@ -119,13 +114,14 @@ a_type('macaddr', 'xxxxxxxxxxxx', 'MACADDR', 'VARCHAR(12)',
 # 	PostgresSQL removes [:-.] on input; outputs 'xx:xx:xx:xx:xx:xx'
 a_type('String', '', 'VARCHAR', 'VARCHAR(200)',
        r'(?:(?:"((?:(?:"")|[^"])*)")|([^,"]*)')
-# 	PostgresSQL allows the length to be omitted
-# 	and has 'TEXT' type for unlimited length
-# Add the ENUMs to known types
-# The commented ENUMS are not currently used in table definitions
-# enum labels are case-sensitive and include white-space. Value occupies 4-bytes
-# When values are not otherwise ordered,
-# values are ordered from boring to alarming, not in Cisco's internal order.
+"""
+PostgresSQL allows the length to be omitted and has 'TEXT' type for unlimited length
+Add the ENUMs to known types.
+The commented ENUMS are not currently used in table definitions.
+enum labels are case-sensitive and include white-space. Value occupies 4-bytes.
+When values are not otherwise ordered,
+values are ordered from boring to alarming, not in Cisco's internal order.
+"""
 # a_enum('AccessPointTypeEnum', ['UNKNOWN', 'ENABLE', 'DISABLE'])
 a_enum('AlarmSeverityEnum', ['CLEARED', 'INFORMATION', 'WARNING',
                              'MINOR', 'MAJOR', 'CRITICAL'])
@@ -312,9 +308,11 @@ class Named:
     """self.table_name used by Pager and SubTable"""
 
     def __init__(self, *args, table_name: str, **kwargs):
-        """
-        Args:
-            table_name:	full pathname of the Table or SubTable
+        """Include self.table_name attribute
+
+        :param args:        not used
+        :param table_name:  full pathname of the Table or SubTable
+        :param kwargs:      not used, except passed to super()
         """
         # print(f"Named.__init__(table_name={table_name}, kwargs={kwargs}")
         super().__init__(**kwargs)
@@ -322,18 +320,23 @@ class Named:
 
 
 class Pager(Named):
+    """Implements the semantics required for collecting a batch of records from
+    a CPI API. Rather than defining a subclass for each collection approach, the
+    class included methods for default, complete poll, next batch of historical,
+    and next batch of ClientSessions records.
+    """
     timeScale: float = 1.0          # scale hours of data to collect per batch
     catchup: float = 0.25           # multiplier for polling period when catching up
     rollup: float = DAY             # default seconds before CPI rolls-up the data
 
     def __init__(self, *args, polled: bool, poll_period: float, recs_per_hour: int, **kwargs):
-        """Create new Pager instance.
+        """Create new Pager instance
 
-        Parameters:
-            polled (bool):		True if timestamped poll of entire table
-            poll_period (float)	seconds until next poll from
-                                last poll if<=1DAY else start of today
-            recs_per_hour (int): estimated record qty generated per poll or hour
+        :param args:        not used, except passed to super()
+        :param polled:      True for timestamped poll of the entire table
+        :param poll_period: seconds until next poll from (last poll if<=1DAY else start of today)
+        :param recs_per_hour:  estimated record qty generated per poll or hour
+        :param kwargs:      not used, except passed to super()
         """
         super().__init__(*args, **kwargs)
         self.idField = None             # No primary key, yet
@@ -342,22 +345,25 @@ class Pager(Named):
         self.timeField: Union[str, None] = None      # name of the timeField, if any
         self.timeField_type = ''        # in {'bad', 'int', 'long', 'string', ...}
         # dynamic state
-        self.lastId = 0                 # maximum seen value of the primary key
-        self.minSec = 0                 # time_field's filtering value
-        self.maxTime = 0                # time_field's max native value
-        self.nextPoll: float = 0.0      # Scheduled epochSeconds for next batch.
-        self.paged: bool = True         # Assume that this API supports paging
-        self.polled: bool = polled      # True if polled, else False
+        self.lastId = 0             # max read primary key, e.g. @id, value
+        self.minSec = 0             # time_field's filtering value
+        self.maxTime = 0            # time_field's max native value
+        self.nextPoll: float = 0.0  # Scheduled epochSeconds for next batch.
+        self.paged: bool = True     # Assume that this API supports paging
+        self.polled: bool = polled  # True if polled, else False
         self.pollPeriod: float = poll_period  # seconds to next poll from (lastPoll if<1DAY else today)
-        self.prev_poll = dict()         # {primary_key: collection_time, ...}
+        self.prev_poll = dict()     # {primary_key: collection_time, ...}
         self.recordsPerHour: int = recs_per_hour  # est. record qty per poll or hour
-        self.startPoll: float = 0.0     # epochSeconds that the poll started
-        self.recCnt: int = 0            # number of records read
-        self.rollup = Table.rollup      # default interval before data is rolled-up
-        self.verbose: int = 0           # default is no diagnostic messages
+        self.startPoll: float = 0.0  # epochSeconds that the poll started
+        self.recCnt: int = 0        # number of records read
+        self.rollup = Table.rollup  # default interval before data is rolled-up
+        self.verbose: int = 0       # default is no diagnostic messages
 
     def batch_next_poll(self, max_time: float = None):
-        """Set nextPoll after a partial poll through approx max_time:epochSeconds."""
+        """Set nextPoll after a partial poll through approx max_time:epochSeconds
+
+        :param max_time:    epoch seconds for nextPoll
+        """
         period = self.period()
         polled_time = self.polledTime
         if max_time is not None:        # record(s) contained a timestamp?
@@ -375,7 +381,8 @@ class Pager(Named):
             delta = period/10
         self.nextPoll = polled_time + max(delta, MINUTE)  # be fair to other tables
         print(f"table.verbose={self.verbose}, {self.tableName}.nextPoll ",
-              f"interval {int(delta/60)}minutes at {strfTime(self.nextPoll, brief)}")
+              f"interval {int(delta/60)}minutes at {strfTime(self.nextPoll, brief)}",
+              flush=True)
 
     def get_batch_size(self) -> int:
         """Return the maximum number of records in a batch."""
@@ -398,7 +405,7 @@ class Pager(Named):
             self.nextPoll = (dt + offset).timestamp()  # convert back to time.time()
 
     def period(self) -> float:
-        """Return the number of seconds between polls, scaled by timeScale."""
+        """Return the scheduled seconds between polls, scaled by timeScale."""
         p = self.pollPeriod
         return Table.timeScale*(p if p <= DAY else int(p/DAY)*DAY)
 
@@ -417,8 +424,11 @@ class Pager(Named):
     '''
 
     def filter_talk(self, filter_msg: str):
-        """If self.verbose>0, print filter_msg 1st and every Nth call."""
-        if self.verbose <= 0:           # only print if verbose
+        """If self.verbose>0, print filter_msg in 1st and every Nth call
+
+        :param filter_msg:  message to print
+        """
+        if self.verbose <= 0:           # only consider print if verbose
             return                      # not verbose
         elif self.filterCnt <= 0:       # 1st or a Nth call to filter?
             print(filter_msg, end=' ', flush=True)
@@ -427,39 +437,41 @@ class Pager(Named):
             pass
         self.filterCnt = (self.filterCnt + 1) % 5
 
-    def cs_pager(self, param: object) -> dict:
-        """Perform paging functions for reading the ClientSessions table.
-Assumptions:
--	The difference between the server's and client's clocks is bounded.
-    Updates to sessionEndTime appear in CPI's database within bounded time.
-    The sum of the above time durations is less than Cpi.POSTING_DELTA seconds.
--	The database id, @id, of each inserted record is > the @id of all previous
-    records. API delivers records ordered by database id, @id.
-cs_pager('filter') keeps track of:
-    lastId	the @id of the most recently read record; or 0
-    maxTime	the maximum sessionEndTime of frozen records that have been read
-    minSec	the minimum sessionStartTime time of record(s) that might not have
-            been reported in previous sessions.
-to return a filter of the form "@id>lastId and sessionEndTime>minSec" that reads
-at least the sessions which were not frozen and reported in previous batches.
-The first ever collection begins with lastId=0 and minSec=0, so the filter
-is @id>0 and sessionEndTime>0.
-When called with 'endBatch', it calls batch_next_poll(maxTime) to set the nextPoll
-time appropriate to how far behind the collection is.
-On resuming the collection, lastId has advanced to continue collecting more
-records.
-After the final record, cpiapi.Reader calls pager('complete').
-cs_pager updates minSec and sets lastId = 0, so that following batches will
-collect only those sessions that were active or closed after minSec.
+    def cs_pager(self, param: Union[dict, str]) -> Union[dict, None]:
+        """Manages paging for reading the ClientSessions API.
 
-Parameters:
-    param  (object): 'init' initializes the pager before a batch of records
-            'filter' returns a filter for a https:GET
-            'endBatch' after a partial poll (recCnt >= self.get_batch_size())
-            'complete' after reading the last record in the table
-            dict: with each record, so that pager can see each record.
-Returns:
-    None or dict:
+        The first ever collection begins with lastId=0 and minSec=0, so the
+        filter is @id>0 and sessionEndTime>0.
+        Upon resuming a collection, lastId has advanced to continue collecting
+        more records.
+
+        :param param:
+            - 'init' initializes the pager before a batch of records
+            - 'filter' returns a filter for a https:GET
+                of the form "@id>lastId and sessionEndTime>minSec" that reads
+                at least the sessions which were not frozen and reported
+                in previous batches.
+            - 'endBatch' after a partial poll (recCnt >= self.get_batch_size())
+                it calls batch_next_poll(maxTime) to set the nextPoll
+                time appropriate to how far behind the collection is.
+            - 'complete' after Reader reads the last record in the table
+                updates minSec and sets lastId = 0, so that following batches will
+                collect only those sessions that were active or closed after minSec.
+            - dict: with each record, so that pager can see each record.
+        :return: None, except returns dict filter when param=='filter'
+        "raises TypeError on unknown param
+        """
+        """
+        Assumptions:
+        -	The difference between the server's and client's clocks is bounded.
+            Updates to sessionEndTime appear in CPI's database within bounded time.
+            The sum of the above time durations is < Cpi.POSTING_DELTA seconds.
+        -	The database id, @id, of each inserted record is > the @id of all
+            previous records. API delivers records ordered by database id, @id.
+        cs_pager's use of the maxTime and minSec attributes:
+            maxTime	the max sessionEndTime of frozen records that have been read
+            minSec	the min sessionStartTime time of record(s) that might not have
+                been reported in previous sessions.
         """
         if isinstance(param, dict):     # called with current record
             self.lastId = param['@id']  # max(@id)
@@ -476,34 +488,41 @@ Returns:
         elif param == 'endBatch':       # Advance nextPoll
             self.batch_next_poll(millisToSecs(self.maxTime))
         elif param == 'complete':       # Schedule nextPoll per table parameters
-            self.minSec = secsToMillis(self.startPoll - 6*60.0)  # POSTING_DELTA n/a
+            self.minSec = secsToMillis(self.startPoll - Cpi.POSTING_DELTA)
             self.zero_id_field()        # start next collection at the beginning
             self.next_poll_update()     # schedule and lastId = 0
         else:
             logErr(f"{self.tableName} unknown pager function code {param}")
             raise TypeError
 
-    def hist_pager(self, param: object = 1) -> dict:
-        """Perform paging functions for reading a table of historical records.
-Records are read in @id order, which corresponds closely to time_field order.
-Each batch advances the lastId to the maximum (i.e. last) @id read.
-Assumptions:
--	The database id, @id, of each inserted record is > the @id of all previous
-    records. API delivers records ordered by database id, @id.
--	The table has an id_field, which if not @id orders the records exactly as @id
--	if table is defined to have a time_field, the pager uses it to escalate
-    polling for older records. The time_field in each record records
-    the approximate time that the record was inserted into the database.
-    Few records are missing a time_field value.
+    def hist_pager(self, param: Union[dict, str] = 'filter') -> Union[dict, None]:
+        """Manages paging for reading the next batch from a table of
+        historical records.
 
-Parameters:
-param  'init' initializes the pager before a batch of records
-        'filter' returns a filter for a https:GET
-        'endBatch' after a partial poll (recCnt >= self.get_batch_size())
-        'complete' after reading the last record in the table
-        dict: with each record, so that pager can see each record.
-Returns:
-    None or dict:
+        Records are read in @id order, which corresponds closely to time_field order.
+        Each batch advances the lastId to the maximum (i.e. last) @id read.
+        Assumptions:
+        -	The database id, @id, of each inserted record is > the @id of all
+            previous records. API delivers records ordered by database id, @id.
+        -	The table has an id_field, which if not @id orders the records
+            exactly as @id
+        -	if table is defined to have a time_field, the pager uses it to escalate
+            polling for older records. The time_field in each record records
+            the approximate time that the record was inserted into the database.
+            Few records are missing a time_field value.
+
+        :param param:
+            - 'init' initializes the pager before a batch of records
+            - 'filter' returns a filter for a https:GET that reads records that
+            have not yet been read. Of the form "{primary_key_name}>{lastId}",
+            or ".firstResult>{recCnt}" if table has no primary key.
+            - 'endBatch' after a partial batch when recCnt >= self.get_batch_size()
+            - 'complete' after reading the last record in the table
+                calls next_poll_update() to schedule the next poll
+            - dict: with each record, so that pager can see each record, and
+                extend record with 'polledTime' iff table is polled.
+        :return: None, except returns dict filter when param=='filter'
+        :raises TypeError on unknown ``param``
         """
         if isinstance(param, dict):     # called with the current record?
             self.lastId = param[self.idField]  # max(id_field)
@@ -529,23 +548,39 @@ Returns:
             logErr(f"{self.tableName} unknown pager function code {param}")
             raise TypeError
 
-    # The poll_pager collects all of the records in a table that represents
-    # a collection of pseudo-static entities. I.e. the number and identity
-    # of the entities change but slowly. The table is polled periodically to
-    # record the changing entity attribute values.
-    # If the table has a primary key, the poll_pager returns a filter to GET
-    # records after the last read primary key value.
-    # If the table does not have a primary key, the poll_pager returns a filter
-    # on the ',firstResult' meta-attribute to skip over the count of records
-    # read.
-    # Assertion with a primary key: record[id_field]<=lastId --> record has been read
-    # Assertion w/o a primary key: records 1 through recCnt have been read
+    def poll_pager(self, param: Union[dict, str] = 'filter') -> Union[dict, None]:
+        """Manage paging through all of the records from an API --
+        I.e. a snapshot that is useful for a collection of pseudo-static entities.
+        I.e. the number and identity of the entities change but slowly.
 
-    def poll_pager(self, param: object = 'filter') -> dict:
+        If the table has a primary key, poll_pager('filter') returns a filter to
+        GET records after the maximum read primary key value, starting with 0.
+        Otherwise, poll_pager returns a filter that utilizes the'.firstResult'
+        meta-attribute to skip over the count of records read. In the presence of
+        concurrent additions or deletions to the table this may skip or
+        duplicate records
+
+        Assertion with a primary key: record[id_field]<=lastId --> record has been read
+
+        Assertion w/o a primary key: records 1 through recCnt have been read
+
+        :param param:
+            - 'init' initializes the pager before a batch of records
+            - 'filter' returns a filter for a https:GET that reads records that
+            have not yet been read. Of the form "{primary_key_name}>{lastId}",
+            or ".firstResult>{recCnt}" if table has no primary key.
+            - 'endBatch' is an error -- treated like 'complete'
+            - 'complete' calls next_poll_update() to schedule the next poll
+            - dict: with each record, so that pager can see each record, and
+                extend record with 'polledTime' iff table is polled.
+        :return: None, except returns dict filter when param=='filter'
+        :raises TypeError on unknown ``param``
+        """
         if isinstance(param, dict):     # called with current record?
             param['polledTime'] = self.polledTime  # stamp record with polling time
-            if self.idField is not None:
-                self.lastId = param[self.idField]
+            if self.idField is not None:  # table has a primary key?
+                # assert self.lastId <= param[self.idField]
+                self.lastId = param[self.idField]  # Yes. update
         elif param == 'filter':         # return a filter for paging a table?
             if self.idField is not None:  # page by primary key if there is one
                 result = {attr_name(self.idField): f"gt({param_str(self.lastId)})"}
@@ -574,24 +609,17 @@ class SubTable(Named):
     """Class defines a SubTable, with common attributes inherited by Table."""
 
     def __init__(self, *fields, keys: list, **kwargs):
-        """Create a SubTable
+        """Create the SubTable attributes
 
-        Parameters:
-            keys (list):		[(type:str, field_name:str), ...] of primary keys
-            *fields (tuple):	((type:str, field_name:str, include:bool=True), ...)
-                    include		True to add to SELECT; None to add ['ignore']=True
-
-        Returns with updated self. attributes:
-            .table_name = table_name
-            .select = [field_name, ...],
-            .key_defs = [(type_string, field_name), ...]
-            .fieldTypes = {field_name:{type entry in types}, ...}
-            }
+        :param fields: each is ((type:str, field_name:str, include:bool=True), ...)
+                include		True to add to SELECT; None to add ['ignore']=True
+        :param keys:    [(type:str, field_name:str), ...] of primary keys
+        :param kwargs:  not used, except passed to super()
         """
         # print(f"SubTable.__init__(fields={fields}, kwargs={kwargs})")
         super().__init__(*fields, **kwargs)
         self.file: Union[_io.TextIOWrapper, None] = None  # output file
-        self.file_name: str = ''        # full pathname of output file
+        self.file_name: str = ''  # pathname of output file {epoch_msec}_{table_name}{version}
         self.select: list = list()      # build SELECT list from an empty list
         self.check_fields: int = -1     # down-counter to 0 to check field types
         self.check_enums: int = -1      # down-counter to 0 to check enum values
@@ -599,7 +627,7 @@ class SubTable(Named):
         self.field_values = defaultdict(lambda: defaultdict(int))  # {field_name:{value:count, ...}, ...}
         self.sample_enums: int = -1     # re-initialization value for check_enums
         self.sample_fields: int = -1    # re-initialization value for check_fields
-        self.fieldTypes: dict = dict()  # build fieldTypes from an empty dict
+        self.fieldTypes: dict = dict()  # {field_name:field_type, ...} of each field, field_type in allTypes
         self.key_defs: list = keys
         self.parent: Union[Table, None] = None       # Initially no parent
         self.subTables: dict = dict()   # {pathName:subTable, ...}
@@ -633,14 +661,15 @@ class SubTable(Named):
         return [(fn, values, dict([(i, v) for v, i in values.items()]))
                 for fn, values in enums]
 
-    def field(self, field_type: str, field_name: str, include: bool = True, first: bool = False):
+    def field(self, field_type: str, field_name: str, include: bool = True,
+              first: bool = False):
         """Add a field to fieldTypes [and SELECT].
 
-        Parameters:
-            field_type (str):	type of the field
-            field_name (str):	name of the field
-            include (bool):		True to include in SELECT; None to not check
-            first (bool):		insert at beginning of SELECT
+        :param field_type:  type of the field
+        :param field_name:  name of the field
+        :param include:     True to include in SELECT; None to not check
+        :param first:       insert at beginning of SELECT
+        :return:
         """
         fts = self.fieldTypes
         if include is None:             # ignore checking?
@@ -658,9 +687,9 @@ class SubTable(Named):
 
     def open_writer(self, file_name: str) -> 'SubTable':
         """Open a csv.dictWriter for the output from this [Sub]Table
-        Parameters:
-            file_name (str):		pathname (w/o extension) for output file
 
+        :param file_name: pathname (w/o extension) for output file
+        :return:    self
         """
         if len(self.select) > len(self.key_defs):  # any non-key fields to write?
             self.file_name = file_name
@@ -672,7 +701,11 @@ class SubTable(Named):
         return self
 
     def table_columns(self) -> list:
-        """Return column definitions for boto3.client.create_table StorageDescriptor['Columns']."""
+        """Return list of the SELECTED column definitions for
+        boto3.client.create_table StorageDescriptor['Columns'].
+
+        :return:    list
+        """
         result = []
         for col in self.select:
             typ = self.fieldTypes[col]
@@ -685,11 +718,15 @@ class SubTable(Named):
         return result
 
     def to_hive(self, parent_path: str = None) -> str:
-        """Create Hive DDL definition text for a [Sub]Table"""
-        if parent_path is None:         # a top-level Table?
-            name = f"{self.tableName[0].lower()}{self.tableName[1:]}"
-        else:                           # a SubTable
+        """Return Hive DDL definition text for a [Sub]Table
+
+        :param parent_path: path of parent table(s) or None for top-level Table
+        :return:    Hive DDL
+        """
+        if parent_path:                 # a SubTable?
             name = f"{parent_path}_{self.tableName}"
+        else:                           # a top-level Table
+            name = f"{self.tableName[0].lower()}{self.tableName[1:]}"
         s = f"CREATE EXTERNAL TABLE IF NOT EXISTS {name} ("
         regex = ''
         first_field = True
@@ -714,7 +751,11 @@ class SubTable(Named):
         return s
 
     def to_sql(self, parent_path: str = None) -> str:
-        """Create SQL definition text for a [Sub]Table."""
+        """Return SQL DDL text for a [Sub]Table
+
+        :param parent_path: path of parent table(s) or None for top-level Table
+        :return:    SQL DDL
+        """
         if parent_path is None:         # a top-level Table?
             name = f"{self.tableName[0].lower()}{self.tableName[1:]}"
         else:  # a SubTable
@@ -739,30 +780,41 @@ class SubTable(Named):
         return s
 
     def type_find(self, type_name: str) -> list:
-        """return list of all fields in table of type boolean"""
+        """Return list of all SELECTed fields in table of type type_name
+
+        :param type_name:   a fieldType 'name'
+        :return:
+        """
+        """"""
         return [fn for fn in self.select if self.fieldTypes[fn]['name'] == type_name]
 
 
 class Table(SubTable, Pager):
+    """A Table instance defines a profile for GETing batches of results from a
+    CPI API, the structure and types of the component fields, and how to map
+    a possibly hierarchic form to separate relational table components.
+
+    """
     def __init__(self, version: str, prefix: str, table_name: str, polled: bool,
                  poll_period: float, recs_per_hour: int, *fields):
-        """Create new Table instance.
+        """Create a new Table instance
 
-        Parameters:
-            version (str):		API version. e.g. "v1", "v2", "v3", "v4"
-            prefix (str):		URL prefix. E.g. "data", "op/devices", ...
+        :param version:     API version. e.g. "v1", "v2", "v3", "v4"
+        :param prefix:      URL prefix. E.g. "data", "op/devices", ...
+        :param table_name:  table name == API name
+        :param polled:      True iff this table should be polled
+        :param poll_period: seconds between successive scheduled poll/batch
+        :param recs_per_hour: estimated volume returned by the API
+        :param fields:      one entry for each field
         """
+
         # convert from positional arguments to key-word arguments
         kwargs = {'table_name': table_name, 'polled': polled,
                   'poll_period': poll_period, 'recs_per_hour': recs_per_hour, 'keys': []}
         super().__init__(*fields, **kwargs)  # init
         self.version: str = version     # API version E.g. "v1","v2", ...:
         self.prefix: str = prefix       # URL prefix E.g. "data", "op/devices", ...
-        # self.table_name: str = table_name  # table name
         self.generator: callable = defaultGenerator  # generator to iterate records
-        # self.select: list				# Fields to select. [field_name, ...]
-        # self.fieldTypes: dict	# {field_name:field_type, ...} of each field, field_type in allTypes
-        # self.file_name: str = ''		# {epoch_msec}_{table_name}{version}
         self.indexTablePath: Union[str, None] = None  # pathname to index table for main table
         self.checked_time: float = 0.0  # time.time() that enums and fields last checked
         self.prev_polledTime: float = 0.0  # time.time() that previous poll started
@@ -785,7 +837,11 @@ class Table(SubTable, Pager):
         return str(s)
 
     def set_id_field(self, id_field: str) -> 'Table':
-        """Add a key field, and set value of lastId to min."""
+        """Add a key field, and set value of lastId to minimum value
+
+        :param id_field:    name of the key field
+        :return:            self
+        """
         if self.idField is None:
             self.idField = id_field
         self.lastId = 0 if self.fieldTypes[id_field]['name'] in numericTypes else ''
@@ -793,12 +849,20 @@ class Table(SubTable, Pager):
         return self
 
     def set_paged(self, paged: bool = True) -> 'Table':
-        """Sets that this table supports CPI paging."""
+        """Sets whether this table supports CPI paging
+
+        :param paged:   does this table support paging
+        :return:        self
+        """
         self.paged = paged
         return self
 
-    def set_generator(self, generator: object) -> 'Table':
-        """Set the generator that reads a batch of records with managed paging."""
+    def set_generator(self, generator: Union[Callable, str]) -> 'Table':
+        """Set the generator that reads a batch of records with managed paging.
+
+        :param generator:   Custom generator, or name of built-in generator
+        :return:            self
+        """
         if isinstance(generator, str):  # Name of a built-in generator?
             self.generator = getattr(self, generator)
         else:                           # No -- the actual generator function
@@ -806,60 +870,65 @@ class Table(SubTable, Pager):
         return self
 
     def set_index_table_path(self, index_table_path: str) -> 'Table':
+        """
+
+        :param index_table_path: pathname to index table for main table
+        :return:        self
+        """
         self.indexTablePath = index_table_path
         return self
 
-    def set_pager(self, pager: Callable) -> 'Table':
-        """Assign the function to supply and manage paging filters for Cpi.Reader.
-        pager('init') initializes the pager before a batch of records
-        pager('filter') returns a filter for a https:GET
-        pager('endBatch') after a partial poll (recCnt >= self.get_batch_size())
-        pager('complete') after reading the last record in the table
-        pager(dict:) with each record, so that pager can see each record.
-        Assumptions:
-            CPI returns records by ascending database @id.
+    def set_pager(self, pager: Union[Callable, str]) -> 'Table':
+        """Assign the function to supply and manage paging filters for Cpi.Reader
 
-        Parameters:
-            pager	(str):		name of a pager function in the Table class
-                    (function)	a client-supplied pager function
+        :param pager:   custom function, or name of built-in method
+        :return:        self
+        :raises TypeError if ``pager`` is not Callable or predefined
         """
         if isinstance(pager, str):      # Name of a built-in pager?
-            self.pager = getattr(self, pager)
-        else:                           # No -- the actual generator function
-            self.pager = pager
+            self.pager: Callable = getattr(self, pager)
+        elif isinstance(pager, Callable):  # No. The actual generator function?
+            self.pager: Callable = pager  # Yes
+        else:
+            raise TypeError(f"Pager must be a generator, or name of predefined")
         return self
 
     def set_query_options(self, opts: dict) -> 'Table':
-        """Sets the dictionary of query options text to add to the GET.
+        """Set the dictionary of constant query options text to add to the GET.
 
-        Parameters:
-            opts (dict):		{API attribute: value}
+        :param opts:    {API attribute: value, ...}
+        :return:        self
         """
         self.queryOptions = opts
         return self
 
     def set_rollup(self, rollup: float) -> 'Table':
-        """Set the data retention seconds after which CPI deletes records"""
+        """Set the data retention seconds after which CPI deletes records
+
+        :param rollup:  seconds to retain records
+        :return:        updated self
+        """
         self.rollup = rollup
         return self
 
     def set_time_field(self, time_field: str) -> 'Table':
-        """Set the field_name of a field containing a timestamp for the record."""
+        """Set the field_name of a field containing a timestamp for the record.
+
+        :param time_field:  field name
+        :return:            updated elf
+        """
         self.timeField = time_field
         if time_field is not None:
             self.timeField_type = self.fieldTypes[time_field]
         return self
 
     def subTable(self, table_name: str, keys: list, *fields) -> 'Table':
-        """Create a child SubTable of this Table
+        """Define a child SubTable of this Table
 
-        Parameters:
-            table_name (str):	name of SubTable
-            keys (list):		[(type:str, field_name:str), ...] of primary keys
-            *fields (tuple):	((type:str, field_name:str, include=True), ...)
-        Returns:
-            self with updated self.subTables[table_name] = SubTable(...)
-
+        :param table_name:  name of SubTable
+        :param keys:        [(type:str, field_name:str), ...] of primary keys
+        :param fields:      each ((type:str, field_name:str, include=True), ...)
+        :return:            updated self
         """
         self.subTables[table_name] = child = SubTable(table_name=table_name,
                                                       keys=keys, *fields)
@@ -870,12 +939,12 @@ class Table(SubTable, Pager):
 # 	G E N E R A T O R S
 
 def defaultGenerator(server: Cpi, table: Table, verbose: int = 0):
-    """Initialize generator to read a batch of records.
+    """default Generator to read a batch of records from an API
 
-    Parameters:
-        server (Cpi.Cpi)	Cisco Prime Infrastructure server instance
-        table (Table)		the table to read
-        verbose (int)		int verbose diagnostics level or True/False
+    :param server:  Cisco Prime Infrastructure server instance
+    :param table:   Table to read
+    :param verbose: diagnostics level
+    :return:
     """
     table.verbose = verbose_1(verbose)  # table at one level less messages
     table.recCnt = 0
@@ -905,37 +974,44 @@ map_path = 'maps'                       # path to the folder of map jpegs
 
 
 def domainGenerator(server: Cpi, table: Table, verbose: int = 0):
-    """GETS the ServiceDomain API and returns records augmented with a mapId (filename) of image.
+    """GETs the ServiceDomain API and returns each record augmented
+     with a mapId (filename) of image
 
-    Parameters:
-        server (Cpi.Cpi)	Cisco Prime Infrastructure server instance
-        table (Table)		the table to read
-        verbose (int)		int verbose diagnostics level or True/False
+    :param server:  Cisco Prime Infrastructure server instance
+    :param table:   Table to read
+    :param verbose: diagnostics level
+    :return:
     """
 
     def worker(server: Cpi, id_entry: list, service_rec: dict):
-        # Read using cpiapi's default pager, which doesn't know about Table
-        # verbose level reduced to prevent thousands of pager messages
-        table.pager('init')  # initialize the pager before the reader
+        """Read a floor map using the default pager, which doesn't know about Table
+
+        :param server:      Cisco Prime Infrastructure server instance
+        :param id_entry:
+        :param service_rec:
+        :return:
+        """
+        table.pager('init')             # initialize the pager before the reader
         image_response = None
         codes = []
         attr = '@id'
-        for attr in ['@id']:        # if recoverable error on first try, try once more
+        for attr in ['@id']:    # if recoverable error on first try, try once more
             at_id = service_rec[attr]
-            server.rateLimit()          # sleep as necessary to avoid over-running CPI
+            server.rateLimit()      # sleep as necessary to avoid over-running CPI
             try:
                 url = server.baseURL + '/'.join([table.version, 'maps', str(at_id), 'image'])
-                print(f"url={url}")
+                print(f"url={url}", flush=True)
                 r = requests.get(url,
                                  auth=(server.username, server.password),
                                  verify=False, timeout=server.TIMEOUT)
             except requests.exceptions.ReadTimeout:
-                # server.rate_semaphore.get()      # release concurrent count
+                # server.rate_semaphore.get()  # release concurrent count
                 server.rate_semaphore.put(None)  # release concurrent count
                 logErr(f"{sys.exc_info()[0]} {sys.exc_info()[1]}\n")
                 continue
-            except requests.exceptions.RequestException:  # e.g. [ConnectionError|TooManyRedirects]
-                # server.rate_semaphore.get()      # release concurrent count
+            except requests.exceptions.RequestException:
+                # e.g. [ConnectionError|TooManyRedirects]
+                # server.rate_semaphore.get()  # release concurrent count
                 server.rate_semaphore.put(None)  # release concurrent count
                 logErr(f"{sys.exc_info()[0]} {sys.exc_info()[1]}\n")
                 continue                # Could possibly clear. try again
@@ -1008,7 +1084,7 @@ def domainGenerator(server: Cpi, table: Table, verbose: int = 0):
 def neighborGenerator(server: Cpi, table: Table, verbose: int = 0,
                       name_regex: str = None, apd_recs: Iterable = None,
                       concurrent: int = None):
-    """A generator to read a table by apId=value for each value in ap_ids
+    """Generator to read a table by apId=value for each value in ap_ids
 
 
     :param server:      CPI server
@@ -1022,7 +1098,7 @@ def neighborGenerator(server: Cpi, table: Table, verbose: int = 0,
     """
 
     def producer():
-        """Queue each AccessPointDetails @id to work_q."""
+        """Queue each AccessPointDetails @id to ``work_q``."""
         nonlocal table, server, work_q
         if apd_recs:
             reader = apd_recs
@@ -1039,7 +1115,10 @@ def neighborGenerator(server: Cpi, table: Table, verbose: int = 0,
             work_q.put(None)
 
     def worker():
-        """Get an AP apId from the work_q and pass each record to done_q."""
+        """Get an AP apId from the ``work_q`` and pass each record to ``done_q``.
+        :raise ConnectionAbortedError when not recoverable
+        :raise ConnectionError when not recoverable
+        """
         nonlocal work_q, done_q, error_ack_q, table, server
         errors = []
         reprocess_item = False
@@ -1156,7 +1235,7 @@ slew_seconds = 10.0         # Maximum increment to increase the period
 
 
 def real_timeCS(server: Cpi, table: Table, verbose: int = 0):
-    """Initialize generator to read a batch of records.
+    """Generator to read a batch of records.
 
     Parameters:
         server (Cpi.Cpi)	Cisco Prime Infrastructure server instance
@@ -1227,6 +1306,12 @@ def real_timeCS(server: Cpi, table: Table, verbose: int = 0):
     global old_cd, old_cs, new_cd, new_cs
 
     def compare_rec(old_rec: dict, new_rec: dict) -> str:
+        """Compare old_rec to new_rec
+
+        :param old_rec: dict
+        :param new_rec: dict
+        :return:        {attr} {old}->{new}, ...
+        """
         diffs = []
         for attr in old_rec:
             old = old_rec.get(attr, None)
@@ -1236,7 +1321,11 @@ def real_timeCS(server: Cpi, table: Table, verbose: int = 0):
         return ', '.join(diffs)
 
     def not_matched(cd_rec: dict):
-        """log that this CD record did not match a CS record"""
+        """log that this ClientDetails record did not match a ClientSessions record
+
+        :param cd_rec:  the ClientDetails record
+        :return:
+        """
         nonlocal counts
         counts['CD did not match any CS'] += 1  # increment count
         if verbose < 2:                 # skip the details?
@@ -1246,7 +1335,14 @@ def real_timeCS(server: Cpi, table: Table, verbose: int = 0):
               cd_rec['status'])
 
     def cs_cd_diffs(cs_rec: dict, cd_rec: dict) -> str:
-        """Compare cs and cd fields in common. Return differences text or None if equivalent."""
+        """Compare the shared fields of a ClientSessions and ClientDetails record
+
+        :param cs_rec:  ClientSessions record
+        :param cd_rec:  ClientDetails record
+        :return:    differences text, or None if equivalent
+        :raises KeyError on missing field expected to be in common
+        :raises ValueError if fields in common have different types
+        """
         nonlocal common_fields
         if common_fields is None:       # calculate the set of fields in common?
             common_fields = set([k for k in cs_rec]) & set([k for k in cd_rec])
@@ -1446,7 +1542,7 @@ def real_timeCS(server: Cpi, table: Table, verbose: int = 0):
 
 
 def real_timeGen(server: Cpi, table: Table, verbose: int = 0):
-    """Initialize generator to read a batch of records.
+    """Generator to read a batch of records.
 
     Parameters:
         server (Cpi.Cpi)	Cisco Prime Infrastructure server instance
@@ -1525,12 +1621,24 @@ def param_str(val) -> str:
 
 
 def attr_name(s: str) -> str:
-    """Removes initial '@' from s, if present.  To map CPI's @name-->name"""
+    """Maps attribute name ``s`` to name that API expects in  filter.
+
+    Removes initial '@' from s, if present.  To map CPI's @name-->name
+
+    :param s:   attribute name from results
+    :returns:   attribute name expected in filter
+    """
     return s[1:] if s[0] == '@' else s
 
 
 def date_bad(val: str) -> str:
-    """Correct  Cisco's incorrect zone handling, with a timezone offset"""
+    """Correct Cisco's incorrect zone handling of Zulu-formatted dates.
+
+    Apply the correct date-time for EST or EDT
+
+    :param val:     yyyy-mm-ddThh:mm:ss.* formatted date-time
+    :return:        date-time text with corrected EST or EDT zone
+    """
     # The +HHMM offset marks values as having been corrected
     if val[-1] != 'Z':
         return val
@@ -1545,14 +1653,13 @@ def date_bad(val: str) -> str:
 
 
 def find_table(table_name: str, dicts: list, version: int = None, best_version=False) -> Table:
-    """
-    Parameters:
-        table_name (str)	name of the table or subtable
-        dicts (list)		list of dictionaries to search in
-        version (int)		version number. Default (None) find maximum version
-        best_version (bool) find table with minimum table.version>=version
-    Returns:
-        SubTable
+    """Find a Table or Subtable in a list of dictionaries by name and ``version``
+
+    :param table_name:  name of the Table or Subtable
+    :param dicts:       list of dictionaries to search in
+    :param version:     version number. Default (None) find maximum version
+    :param best_version: find table with minimum table.version>=version
+    :return:            Table, Subtable, or None is not found
     """
     table_name, s, sub_name = table_name.partition('_')
     result = None                       # table hasn't yet been found
@@ -1586,7 +1693,11 @@ def find_table(table_name: str, dicts: list, version: int = None, best_version=F
 
 
 def to_enum(types: dict) -> str:
-    """Return ENUM DDL for every ENUM in types"""
+    """Return ENUM DDL for every ENUM in ``types``
+
+    :param types:   dict of type definitions
+    :return:        ENUM DDL text
+    """
     s = ''
     for type_name in types:
         values = types[type_name]['values']
@@ -1596,7 +1707,11 @@ def to_enum(types: dict) -> str:
 
 
 def report_type_uses(limit: int = 0):
-    """Reports each type definition that defines less than 'limit' fields"""
+    """Prints each allTypes definition that defines less than ``limit`` fields
+
+    :param limit:   0 for all types
+    """
+    """"""
     for typeName, typeVal in allTypes.items():
         if limit == 0 or typeVal['UsageCount'] < limit:
             print(f"{typeName} used {typeVal['UsageCount']} times")

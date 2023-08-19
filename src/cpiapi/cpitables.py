@@ -2,12 +2,13 @@
 # cpitables.py is Copyright 2019 by Dennis Risen, Case Western Reserve University
 #
 """
-Contains the archive, production, real-time, and test catalogs of the
+Defines the archive, production, real-time, and test catalogs of the
 relational table definition for each CPI API version's actual response
 (generally different from Cisco documentation) that was used by some version of
 production performance metrics collection.
-"""
 
+Comments often include the underlying SQL DDL for the API's view
+"""
 try:                                    # assume within import of cpiapi package
     from .cpitable import Table, report_type_uses, neighborGenerator, real_timeCS
 except (ModuleNotFoundError, ImportError):  # __main__ or package testing
@@ -15,11 +16,11 @@ except (ModuleNotFoundError, ImportError):  # __main__ or package testing
 
 
 def add_table(tables: dict, table: Table):
-    """Add a Table to the dictionary
+    """Add Table ``table`` to the catalog ``tables``
 
-    Parameters:
-        tables (dict):	the dictionary to add to
-        table (Table)	the Table to add
+    :param tables:  the dictionary to add to
+    :param table:   the Table to add
+    :return:
     """
     if table.tableName in tables:
         tables[table.tableName].append(table)
@@ -27,7 +28,7 @@ def add_table(tables: dict, table: Table):
         tables[table.tableName] = [table]
 
 
-# quantities to estimate record volume
+# quantities to estimate record volume from each API
 MINUTE = 60.0           # seconds in a minute
 HOUR = 60*MINUTE        # seconds in an hour
 DAY = 24*HOUR           # seconds in a day
@@ -388,7 +389,7 @@ from baseStation bs left join (
 '''
 # Poll daily for details e.g {ccx*} not in ClientSessions or HistoricalClient*
 offset += 5*60.0
-# One record for each client seen per updateTime within the last week
+# One record for each client seen per updateTime within the last 6 days 19 hours
 add_table(production, Table(
     'v4', 'data', 'ClientDetails', True, DAY + offset, 60000,
     ('long', '@id'),                    # release 3.x changed string-->long
@@ -479,7 +480,7 @@ add_table(production, Table(
           .set_query_options({'.full': 'true', '.nocount': 'true'})
           )
 
-# One record for each client seen per updateTime within the last week
+# One record for each client seen per updateTime within the last 6 days 19 hours
 # ClientSessionsDetails uses this table as a template
 add_table(archive, Table(
     'v4', 'data', 'ClientDetails', True, 4*60, 60000,
@@ -3087,5 +3088,10 @@ add_table(test, Table(
           )
 
 if __name__ == '__main__':              # test
+    import os
+    import sys
+    print(f"Python {sys.version}")
+    print(f"PYTHONPATH={os.environ['PYTHONPATH']}")
+    print('path=\n' + '\n'.join(sys.path))
     report_type_uses(1)                 # report each type not used in a field definition
     print(f"NUMHIST={NUMHIST}")

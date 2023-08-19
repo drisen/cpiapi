@@ -1,7 +1,6 @@
 LICENSE
 README.md
 pyproject.toml
-src/cpiapi/__init__.py
 src/cpiapi/cpi.py
 src/cpiapi/cpitable.py
 src/cpiapi/cpitables.py
