@@ -3091,7 +3091,8 @@ if __name__ == '__main__':              # test
     import os
     import sys
     print(f"Python {sys.version}")
-    print(f"PYTHONPATH={os.environ['PYTHONPATH']}")
+    if 'PYTHONPATH' in os.environ:
+        print(f"PYTHONPATH={os.environ['PYTHONPATH']}")
     print('path=\n' + '\n'.join(sys.path))
     report_type_uses(1)                 # report each type not used in a field definition
     print(f"NUMHIST={NUMHIST}")
