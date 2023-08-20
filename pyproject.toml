@@ -16,7 +16,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: Unix",
               ]
-dependencies = [ "pytz>=2023.7", "requests>=2.27", "urllib3>=1.26",
+dependencies = [ "pytz", "requests>=2.27", "urllib3>=1.26",
     "mylib @ git+https://github.com/drisen/mylib.git",
     "loom @ git+https://github.com/drisen/loom.git"
 ]

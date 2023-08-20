@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="Added debugging code for ClientSessions API.&#10;This Test release 2.1.3 is for testing and debugging ClientSessions in py3.9 production environment.&#10;Renamed obsolete __init__.py out of the way.&#10;Committing docstrings update to consistent form.&#10;Added the Cache.expire method.&#10;Added flush to diagnostic outputs">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="06496ba8-cc39-4044-bb15-f85f42509171" name="Changes" comment="Merge remote-tracking branch 'origin/master'" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,7 +46,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../timeMachine" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../mylib" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -455,7 +453,21 @@
       <option name="project" value="LOCAL" />
       <updated>1692485052100</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/cpiapi.egg-info/PKG-INFO">
+      <created>1692497848643</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1692497848643</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Merge remote-tracking branch 'origin/master'">
+      <created>1692497876964</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1692497876964</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -484,6 +496,8 @@
     <MESSAGE value="2.1 workaround for ClientDetails' crud error" />
     <MESSAGE value="Added new fields in [Historical]ClientCounts.&#10;Supported checking a sampling of records by adding sample_[enums|fields] attributes to SubTable." />
     <MESSAGE value="Added debugging code for ClientSessions API.&#10;This Test release 2.1.3 is for testing and debugging ClientSessions in py3.9 production environment.&#10;Renamed obsolete __init__.py out of the way.&#10;Committing docstrings update to consistent form.&#10;Added the Cache.expire method.&#10;Added flush to diagnostic outputs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added debugging code for ClientSessions API.&#10;This Test release 2.1.3 is for testing and debugging ClientSessions in py3.9 production environment.&#10;Renamed obsolete __init__.py out of the way.&#10;Committing docstrings update to consistent form.&#10;Added the Cache.expire method.&#10;Added flush to diagnostic outputs" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml&#10;#&#9;src/cpiapi.egg-info/PKG-INFO" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/master'" />
   </component>
 </project>
