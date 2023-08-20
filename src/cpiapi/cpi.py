@@ -601,7 +601,8 @@ if __name__ == '__main__':  # test with optional command argument: tableURL
     import os
     import sys
     print(f"Python {sys.version}")
-    print(f"PYTHONPATH={os.environ['PYTHONPATH']}")
+    if 'PYTHONPATH' in os.environ:
+        print(f"PYTHONPATH={os.environ['PYTHONPATH']}")
     print('path=\n' + '\n'.join(sys.path))
     from sys import argv, exit
     print("must be connected to case.edu network to run this test")
