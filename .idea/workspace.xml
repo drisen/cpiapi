@@ -48,7 +48,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../mylib" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../timeMachine" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -448,7 +448,14 @@
       <option name="project" value="LOCAL" />
       <updated>1692484371907</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Added debugging code for ClientSessions API.&#10;This Test release 2.1.3 is for testing and debugging ClientSessions in py3.9 production environment.&#10;Renamed obsolete __init__.py out of the way.&#10;Committing docstrings update to consistent form.&#10;Added the Cache.expire method.&#10;Added flush to diagnostic outputs">
+      <created>1692485052100</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1692485052100</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
