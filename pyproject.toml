@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cpiapi"
-version = "2.1.4"
+version = "2.1.5"
 authors = [ { name="Dennis Risen", email="dar5@case.edu" }, ]
 description = "Cisco Prime Infrastructure API utilities"
 readme = "README.md"
