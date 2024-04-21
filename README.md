@@ -5,7 +5,7 @@ Package to GET data-sets from the Cisco Prime Infastructure GET APIs. Includes:
     - **Cpi.Reader** creates a Generator which yields each item from Pager-managed
       GETs of the API. Supports filtering, paging, rate-limiting,
       and predefined or custom Pagers.
-- **Cache** class defines a cache in ~/cache of recently read CPI API data.
+- **Cache** class manages a cache (by default in ~/cache) of recently read CPI API data.
     - **Cache.Reader** creates a Generator which yields each item from the cache
 or write-through to cache from Cpi.Reader
 - **Catalogs:** each entry in the {archive, production, real-time, test} catalogs

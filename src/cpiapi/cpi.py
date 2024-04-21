@@ -55,6 +55,7 @@ class Cpi:
     perUserThreshold = 5            # Max # of user requests allowed per window
     maxConcurrent = 5               # Number of concurrent GETs allowed
     max_timeout = 3600              # Max seconds of retrying before ConnectionError
+    buggyAPI = '<API name here>'    # set to enable more messages for only this API
 
     def __init__(self, username: str, password: str,
                  baseURL: str = "https://ncs01.case.edu/webacs/api/",
@@ -277,7 +278,7 @@ class Cpi:
                 self.four_oh_one = 0    # Consecutive 401 Unauthorized status_code
                 self.cpi_crud = 0       # Consecutive crud in CPI *****
                 self.backoff = 1     # successful GET also resets sleep time scale
-                if self.tableURL.__contains__('ClientSessions'):  # *****
+                if self.tableURL.__contains__(Cpi.buggyAPI) and self.verbose > 1:  # *****
                     print(f"len(response)={len(response)}")
                     print(pprint.pformat(response.get('queryResponse', response))[:4000])
                 mgmt_type = self.tableURL.rpartition('/')[2][:-1]  # the type of a mgmt entry
@@ -312,7 +313,7 @@ class Cpi:
                     else:
                         paging = False
                     '''
-                    if self.recCnt < 2001 and self.tableURL.__contains__('ClientSessions'):  # *****
+                    if self.recCnt < 2001 and self.tableURL.__contains__(Cpi.buggyAPI) and self.verbose:  # *****
                         print(f"len(entity_list)={len(entity_list)}, dto_names={self.dto_names}")
                     if len(entity_list) == 0:  # No [more] records?
                         return
@@ -333,15 +334,15 @@ class Cpi:
                                 print(f"Couldn't find {self.dto_names[0]} in [{keys}]")  # *****
                                 logErr(self.diag_str(r, f"Couldn't find {self.dto_names[0]} in [{keys}]"))
                                 return
-                        if self.recCnt < 10 and self.tableURL.__contains__('ClientSessions'):  # *****
+                        if self.recCnt < 10 and self.tableURL.__contains__(Cpi.buggyAPI) and self.verbose:  # *****
                             print(f"yielding {self.recCnt} ", end='')
                         yield x
-                        if self.recCnt < 10 and self.tableURL.__contains__('ClientSessions'):  # *****
-                            print(f"continuing ", end='' if self.recCnt%10 else '\n')
-                    if self.tableURL.__contains__('ClientSessions'):  # *****
+                        if self.recCnt < 10 and self.tableURL.__contains__(Cpi.buggyAPI) and self.verbose:  # *****
+                            print(f"continuing ", end='' if self.recCnt % 10 else '\n')
+                    if self.tableURL.__contains__(Cpi.buggyAPI) and self.verbose:  # *****
                         print(f"exited for after {self.recCnt} records")
                     if not self.paged:  # the API does not support paging?
-                        if self.tableURL.__contains__('ClientSessions'):  # *****
+                        if self.tableURL.__contains__(Cpi.buggyAPI) and self.verbose:  # *****
                             print(f"doesn't support paging")
                         return          # Every record was returned in the first response
                 elif response_name == 'mgmtResponse' and item.get('@responseType', None) == 'operation' \
@@ -441,9 +442,10 @@ class Cpi:
 
 class Cache:
     """
-    Manage a cache, in ~/cache directory, of API contents recently read from CPI
+    Manage a cache, in cache_dir directory, of API contents recently read from CPI
     by the current user.
     """
+    # ~/cache is the default directory
     cache_dir = os.path.join(os.path.expanduser('~'), 'cache')
     cache_semaphore = threading.Semaphore()
 
@@ -595,6 +597,15 @@ class Cache:
         s = f"{files_deleted} files totaling {bytes_deleted:,} bytes deleted" \
             + f"{files_remaining} files totaling {bytes_remaining:,} bytes in cache"
         return s
+
+    @classmethod
+    def set_cache_dir(cls, cache_dir: str):
+        """Sets the directory to be used for the cache of files.
+
+        :param cache_dir:   filename string
+        :return:
+        """
+        cls.cache_dir = cache_dir
 
 
 if __name__ == '__main__':  # test with optional command argument: tableURL

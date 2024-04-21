@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cpiapi
-Version: 2.1.4
+Version: 2.1.7
 Summary: Cisco Prime Infrastructure API utilities
 Author-email: Dennis Risen <dar5@case.edu>
 License:                     GNU GENERAL PUBLIC LICENSE
@@ -634,6 +634,11 @@ Classifier: Operating System :: Unix
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: pytz
+Requires-Dist: requests>=2.27
+Requires-Dist: urllib3>=1.26
+Requires-Dist: mylib@ git+https://github.com/drisen/mylib
+Requires-Dist: loom@ git+https://github.com/drisen/loom
 
 # cpiapi package
 
@@ -642,7 +647,7 @@ Package to GET data-sets from the Cisco Prime Infastructure GET APIs. Includes:
     - **Cpi.Reader** creates a Generator which yields each item from Pager-managed
       GETs of the API. Supports filtering, paging, rate-limiting,
       and predefined or custom Pagers.
-- **Cache** class defines a cache in ~/cache of recently read CPI API data.
+- **Cache** class manages a cache (by default in ~/cache) of recently read CPI API data.
     - **Cache.Reader** creates a Generator which yields each item from the cache
 or write-through to cache from Cpi.Reader
 - **Catalogs:** each entry in the {archive, production, real-time, test} catalogs

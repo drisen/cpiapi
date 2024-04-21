@@ -4,7 +4,7 @@
 """
 In a set of csv files, sorted ascending by file name,
 verify that the @id field is ascending within each file and between files.
-Report ay discrepancies.
+Report any discrepancies.
 """
 
 from argparse import ArgumentParser
@@ -29,7 +29,7 @@ for filePat in args.filenames:
     fileNames += more
 
 previous:Union[int, str, None] = None         # previous key value
-fileNames.sort()        # Will process files in ascending order by file name
+fileNames.sort()            # Will process files in ascending order by file name
 for fn in fileNames:
     with open(fn, 'rt', newline='') as csv_file:
         print(fn)
